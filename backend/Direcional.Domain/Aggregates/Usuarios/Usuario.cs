@@ -1,7 +1,5 @@
 namespace Direcional.Domain.Aggregates.Usuarios;
 
-public enum PerfilUsuario { Admin, Corretor }
-
 public class Usuario
 {
 	public Guid Id { get; private set; }
@@ -24,4 +22,18 @@ public class Usuario
 			PerfilId = perfilId
 		};
 	}
+
+	public void Atualizar(string nome, string email, Guid perfilId)
+	{
+		Nome = nome;
+		Email = email;
+		PerfilId = perfilId;
+	}
+
+	public void AlterarSenha(string novaSenhaHash)
+	{
+		SenhaHash = novaSenhaHash;
+	}
+
+	public void TrocarPerfil(Guid perfilId) => PerfilId = perfilId;
 }

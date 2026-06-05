@@ -30,4 +30,5 @@ public class Reserva
 
 	public void Cancelar() => Status = StatusReserva.Cancelada;
 	public void Converter() => Status = StatusReserva.Convertida;
+	public void AtualizarObservacoes(string? observacoes) => Observacoes = observacoes;
 }

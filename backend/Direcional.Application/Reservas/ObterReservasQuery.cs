@@ -1,23 +1,38 @@
-using Direcional.Domain.Aggregates.Apartamentos;
 using Direcional.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Direcional.Application.Reservas;
 
-public record ObterReservasQuery() : IRequest<List<Reserva>>;
-public record ObterReservaPorIdQuery(Guid Id) : IRequest<Reserva?>;
+public record ReservaDto(
+	Guid Id,
+	Guid ApartamentoId,
+	Guid ClienteId,
+	DateTime DataReserva,
+	DateTime DataExpiracao,
+	string Status,
+	string? Observacoes);
+
+public record ObterReservasQuery() : IRequest<List<ReservaDto>>;
+public record ObterReservaPorIdQuery(Guid Id) : IRequest<ReservaDto?>;
 
 public class ObterReservasQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterReservasQuery, List<Reserva>>
+	: IRequestHandler<ObterReservasQuery, List<ReservaDto>>
 {
-	public Task<List<Reserva>> Handle(ObterReservasQuery query, CancellationToken ct)
-		=> db.Reservas.AsNoTracking().ToListAsync(ct);
+	public Task<List<ReservaDto>> Handle(ObterReservasQuery query, CancellationToken ct)
+		=> db.Reservas
+			.AsNoTracking()
+			.Select(r => new ReservaDto(r.Id, r.ApartamentoId, r.ClienteId, r.DataReserva, r.DataExpiracao, r.Status.ToString(), r.Observacoes))
+			.ToListAsync(ct);
 }
 
 public class ObterReservaPorIdQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterReservaPorIdQuery, Reserva?>
+	: IRequestHandler<ObterReservaPorIdQuery, ReservaDto?>
 {
-	public Task<Reserva?> Handle(ObterReservaPorIdQuery query, CancellationToken ct)
-		=> db.Reservas.AsNoTracking().FirstOrDefaultAsync(r => r.Id == query.Id, ct);
+	public Task<ReservaDto?> Handle(ObterReservaPorIdQuery query, CancellationToken ct)
+		=> db.Reservas
+			.AsNoTracking()
+			.Where(r => r.Id == query.Id)
+			.Select(r => new ReservaDto(r.Id, r.ApartamentoId, r.ClienteId, r.DataReserva, r.DataExpiracao, r.Status.ToString(), r.Observacoes))
+			.FirstOrDefaultAsync(ct);
 }

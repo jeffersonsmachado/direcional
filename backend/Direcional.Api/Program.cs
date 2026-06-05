@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Direcional.Api.Endpoints;
 using Direcional.Application.Apartamentos;
-using Direcional.Application.Usuarios;
+using Direcional.Domain.Aggregates.Usuarios;
 using Direcional.Domain.Interfaces;
 using Direcional.Infrastructure.Auth;
 using Direcional.Infrastructure.Persistence;
@@ -68,6 +68,10 @@ builder.Services.AddSwaggerGen(opt =>
 		}
 	});
 });
+
+builder.Services.AddAuthorizationBuilder()
+	.AddPolicy("GerenciarUsuarios", policy =>
+		policy.RequireClaim("permissao", Permissoes.UsuariosGerenciar));
 
 var app = builder.Build();
 

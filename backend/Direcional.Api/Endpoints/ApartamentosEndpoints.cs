@@ -11,15 +11,56 @@ public static class ApartamentosEndpoints
 		{
 			var id = await mediator.Send(cmd);
 			return Results.Created($"/apartamentos/{id}", new { id });
-		});
+		}).RequireAuthorization();
 
 		app.MapGet("/apartamentos", async (IMediator mediator) =>
-			Results.Ok(await mediator.Send(new ObterApartamentosQuery())));
+			Results.Ok(await mediator.Send(new ObterApartamentosQuery())))
+			.RequireAuthorization();
 
 		app.MapGet("/apartamentos/{id:guid}", async (Guid id, IMediator mediator) =>
 		{
 			var apartamento = await mediator.Send(new ObterApartamentoPorIdQuery(id));
 			return apartamento is null ? Results.NotFound() : Results.Ok(apartamento);
-		});
+		}).RequireAuthorization();
+
+		app.MapPut("/apartamentos/{id:guid}", async (Guid id, AtualizarApartamentoCommand cmd, IMediator mediator) =>
+		{
+			if (id != cmd.Id) return Results.BadRequest("ID da rota não corresponde ao corpo.");
+			try
+			{
+				await mediator.Send(cmd);
+				return Results.NoContent();
+			}
+			catch (InvalidOperationException ex)
+			{
+				return Results.Problem(ex.Message, statusCode: 400);
+			}
+		}).RequireAuthorization();
+
+		app.MapPatch("/apartamentos/{id:guid}/valor", async (Guid id, AtualizarValorRequest req, IMediator mediator) =>
+		{
+			try
+			{
+				await mediator.Send(new AtualizarValorApartamentoCommand(id, req.Valor));
+				return Results.NoContent();
+			}
+			catch (InvalidOperationException ex)
+			{
+				return Results.Problem(ex.Message, statusCode: 400);
+			}
+		}).RequireAuthorization();
+
+		app.MapDelete("/apartamentos/{id:guid}", async (Guid id, IMediator mediator) =>
+		{
+			try
+			{
+				await mediator.Send(new ExcluirApartamentoCommand(id));
+				return Results.NoContent();
+			}
+			catch (InvalidOperationException ex)
+			{
+				return Results.Problem(ex.Message, statusCode: 400);
+			}
+		}).RequireAuthorization();
 	}
 }

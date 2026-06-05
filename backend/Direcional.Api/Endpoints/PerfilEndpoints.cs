@@ -38,5 +38,19 @@ public static class PerfisEndpoints
 		app.MapGet("/permissoes", async (IMediator mediator) =>
 			Results.Ok(await mediator.Send(new ObterPermissoesQuery())))
 			.RequireAuthorization();
+
+		app.MapPut("/perfis/{id:guid}", async (Guid id, AtualizarPerfilCommand cmd, IMediator mediator) =>
+		{
+			if (id != cmd.Id) return Results.BadRequest("ID da rota não corresponde ao corpo.");
+			try
+			{
+				await mediator.Send(cmd);
+				return Results.NoContent();
+			}
+			catch (InvalidOperationException ex)
+			{
+				return Results.Problem(ex.Message, statusCode: 400);
+			}
+		}).RequireAuthorization();
 	}
 }

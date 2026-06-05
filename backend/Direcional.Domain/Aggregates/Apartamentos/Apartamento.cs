@@ -28,6 +28,17 @@ public class Apartamento
 		};
 	}
 
+	public void Atualizar(string numero, string bloco, int andar, decimal area, decimal valor)
+	{
+		Numero = numero;
+		Bloco = bloco;
+		Andar = andar;
+		Area = area;
+		Valor = valor;
+	}
+
+	public void AtualizarValor(decimal valor) => Valor = valor;
+
 	public void MarcarComoReservado() => Status = StatusApartamento.Reservado;
 	public void MarcarComoVendido() => Status = StatusApartamento.Vendido;
 	public void MarcarComoDisponivel() => Status = StatusApartamento.Disponivel;

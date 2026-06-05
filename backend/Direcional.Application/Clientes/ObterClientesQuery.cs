@@ -1,23 +1,31 @@
-using Direcional.Domain.Aggregates.Clientes;
 using Direcional.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Direcional.Application.Clientes;
 
-public record ObterClientesQuery() : IRequest<List<Cliente>>;
-public record ObterClientePorIdQuery(Guid Id) : IRequest<Cliente?>;
+public record ClienteDto(Guid Id, string Nome, string CPF, string Email, string Telefone);
+
+public record ObterClientesQuery() : IRequest<List<ClienteDto>>;
+public record ObterClientePorIdQuery(Guid Id) : IRequest<ClienteDto?>;
 
 public class ObterClientesQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterClientesQuery, List<Cliente>>
+	: IRequestHandler<ObterClientesQuery, List<ClienteDto>>
 {
-	public Task<List<Cliente>> Handle(ObterClientesQuery query, CancellationToken ct)
-		=> db.Clientes.AsNoTracking().ToListAsync(ct);
+	public Task<List<ClienteDto>> Handle(ObterClientesQuery query, CancellationToken ct)
+		=> db.Clientes
+			.AsNoTracking()
+			.Select(c => new ClienteDto(c.Id, c.Nome, c.CPF, c.Email, c.Telefone))
+			.ToListAsync(ct);
 }
 
 public class ObterClientePorIdQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterClientePorIdQuery, Cliente?>
+	: IRequestHandler<ObterClientePorIdQuery, ClienteDto?>
 {
-	public Task<Cliente?> Handle(ObterClientePorIdQuery query, CancellationToken ct)
-		=> db.Clientes.AsNoTracking().FirstOrDefaultAsync(c => c.Id == query.Id, ct);
+	public Task<ClienteDto?> Handle(ObterClientePorIdQuery query, CancellationToken ct)
+		=> db.Clientes
+			.AsNoTracking()
+			.Where(c => c.Id == query.Id)
+			.Select(c => new ClienteDto(c.Id, c.Nome, c.CPF, c.Email, c.Telefone))
+			.FirstOrDefaultAsync(ct);
 }

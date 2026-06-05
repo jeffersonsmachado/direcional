@@ -1,23 +1,37 @@
-using Direcional.Domain.Aggregates.Usuarios;
 using Direcional.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Direcional.Application.Usuarios;
 
-public record ObterUsuariosQuery() : IRequest<List<Usuario>>;
-public record ObterUsuarioPorIdQuery(Guid Id) : IRequest<Usuario?>;
+public record UsuarioResumoDto(Guid Id, string Nome, string Email, string Perfil);
+public record UsuarioDetalheDto(Guid Id, string Nome, string Email, string Perfil, List<string> Permissoes);
+
+public record ObterUsuariosQuery() : IRequest<List<UsuarioResumoDto>>;
+public record ObterUsuarioPorIdQuery(Guid Id) : IRequest<UsuarioDetalheDto?>;
 
 public class ObterUsuariosQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterUsuariosQuery, List<Usuario>>
+	: IRequestHandler<ObterUsuariosQuery, List<UsuarioResumoDto>>
 {
-	public Task<List<Usuario>> Handle(ObterUsuariosQuery query, CancellationToken ct)
-		=> db.Usuarios.AsNoTracking().ToListAsync(ct);
+	public Task<List<UsuarioResumoDto>> Handle(ObterUsuariosQuery query, CancellationToken ct)
+		=> db.Usuarios
+			.AsNoTracking()
+			.Select(u => new UsuarioResumoDto(u.Id, u.Nome, u.Email, u.Perfil.Nome))
+			.ToListAsync(ct);
 }
 
 public class ObterUsuarioPorIdQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterUsuarioPorIdQuery, Usuario?>
+	: IRequestHandler<ObterUsuarioPorIdQuery, UsuarioDetalheDto?>
 {
-	public Task<Usuario?> Handle(ObterUsuarioPorIdQuery query, CancellationToken ct)
-		=> db.Usuarios.AsNoTracking().FirstOrDefaultAsync(u => u.Id == query.Id, ct);
+	public Task<UsuarioDetalheDto?> Handle(ObterUsuarioPorIdQuery query, CancellationToken ct)
+		=> db.Usuarios
+			.AsNoTracking()
+			.Where(u => u.Id == query.Id)
+			.Select(u => new UsuarioDetalheDto(
+				u.Id,
+				u.Nome,
+				u.Email,
+				u.Perfil.Nome,
+				u.Perfil.Permissoes.Select(pp => pp.Permissao.Chave).ToList()))
+			.FirstOrDefaultAsync(ct);
 }

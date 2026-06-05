@@ -12,4 +12,6 @@ public class Perfil
 	{
 		return new Perfil { Id = Guid.NewGuid(), Nome = nome };
 	}
+
+	public void RenomearPara(string nome) => Nome = nome;
 }

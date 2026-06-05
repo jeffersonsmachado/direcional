@@ -1,23 +1,38 @@
-using Direcional.Domain.Aggregates.Apartamentos;
 using Direcional.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Direcional.Application.Vendas;
 
-public record ObterVendasQuery() : IRequest<List<Venda>>;
-public record ObterVendaPorIdQuery(Guid Id) : IRequest<Venda?>;
+public record VendaDto(
+	Guid Id,
+	Guid ApartamentoId,
+	Guid ClienteId,
+	Guid? ReservaId,
+	DateTime DataVenda,
+	decimal ValorVenda,
+	string Status);
+
+public record ObterVendasQuery() : IRequest<List<VendaDto>>;
+public record ObterVendaPorIdQuery(Guid Id) : IRequest<VendaDto?>;
 
 public class ObterVendasQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterVendasQuery, List<Venda>>
+	: IRequestHandler<ObterVendasQuery, List<VendaDto>>
 {
-	public Task<List<Venda>> Handle(ObterVendasQuery query, CancellationToken ct)
-		=> db.Vendas.AsNoTracking().ToListAsync(ct);
+	public Task<List<VendaDto>> Handle(ObterVendasQuery query, CancellationToken ct)
+		=> db.Vendas
+			.AsNoTracking()
+			.Select(v => new VendaDto(v.Id, v.ApartamentoId, v.ClienteId, v.ReservaId, v.DataVenda, v.ValorVenda, v.Status.ToString()))
+			.ToListAsync(ct);
 }
 
 public class ObterVendaPorIdQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterVendaPorIdQuery, Venda?>
+	: IRequestHandler<ObterVendaPorIdQuery, VendaDto?>
 {
-	public Task<Venda?> Handle(ObterVendaPorIdQuery query, CancellationToken ct)
-		=> db.Vendas.AsNoTracking().FirstOrDefaultAsync(v => v.Id == query.Id, ct);
+	public Task<VendaDto?> Handle(ObterVendaPorIdQuery query, CancellationToken ct)
+		=> db.Vendas
+			.AsNoTracking()
+			.Where(v => v.Id == query.Id)
+			.Select(v => new VendaDto(v.Id, v.ApartamentoId, v.ClienteId, v.ReservaId, v.DataVenda, v.ValorVenda, v.Status.ToString()))
+			.FirstOrDefaultAsync(ct);
 }
