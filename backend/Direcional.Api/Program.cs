@@ -24,6 +24,17 @@ builder.Services.AddMediatR(cfg =>
 
 builder.Services.AddScoped<IJwtService, JwtService>();
 
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("Frontend", policy =>
+	{
+		policy
+			.WithOrigins("http://localhost:5173")
+			.AllowAnyHeader()
+			.AllowAnyMethod();
+	});
+});
+
 var jwtChave = builder.Configuration["Jwt:Chave"]!;
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(opt =>
@@ -78,6 +89,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
