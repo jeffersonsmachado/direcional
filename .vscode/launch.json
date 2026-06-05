@@ -1,0 +1,20 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Debug API",
+			"type": "coreclr",
+			"request": "launch",
+			"preLaunchTask": "build",
+			// "postDebugTask": "docker-compose down",
+			"program": "${workspaceFolder}/backend/Direcional.Api/bin/Debug/net9.0/Direcional.Api.dll",
+			"args": [],
+			"cwd": "${workspaceFolder}/backend/Direcional.Api",
+			"env": {
+				"ASPNETCORE_ENVIRONMENT": "Development"
+			},
+			"stopAtEntry": false,
+			"console": "internalConsole"
+		}
+	]
+}

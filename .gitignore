@@ -1,0 +1,62 @@
+# Build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Rider
+.idea/
+
+# VS Code (manter apenas o necessário)
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/extensions.json
+
+# NuGet
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+packages/
+
+# ASP.NET
+wwwroot/lib/
+
+# Logs
+*.log
+logs/
+
+# Variáveis de ambiente e secrets
+.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+**/secrets.json
+
+# Entity Framework migrations temporárias (manter as reais)
+# Descomente se não quiser versionar migrations:
+# **/Migrations/
+
+# Docker
+docker-compose.override.yml
+
+# Publicação
+publish/
+**/publish/
+
+# Testes
+TestResults/
+coverage/
+*.coveragexml
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
