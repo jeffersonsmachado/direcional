@@ -77,8 +77,10 @@ public static class DbSeeder
 		var apto3 = Apartamento.Criar("303", "B", 3, 90.0m, 720_000m);
 		var apto4 = Apartamento.Criar("104", "B", 1, 48.5m, 355_000m);
 		var apto5 = Apartamento.Criar("205", "C", 2, 65.0m, 490_000m);
+		var apto6 = Apartamento.Criar("401", "C", 4, 75.0m, 580_000m); // disponível
+		var apto7 = Apartamento.Criar("502", "D", 5, 110.0m, 890_000m); // disponível
 
-		db.Apartamentos.AddRange(apto1, apto2, apto3, apto4, apto5);
+		db.Apartamentos.AddRange(apto1, apto2, apto3, apto4, apto5, apto6, apto7);
 		await db.SaveChangesAsync();
 
 		// ── RESERVAS (3 exemplos) ─────────────────────────────────
