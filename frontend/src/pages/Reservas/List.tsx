@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
+import { Link } from "react-router-dom";
 
 type ReservaDto = {
 	id: string;
@@ -64,6 +65,7 @@ export default function ReservasList() {
 						<th style={{ padding: "12px" }}>Cliente</th>
 						<th style={{ padding: "12px" }}>Imóvel (Bloco/Ap)</th>
 						<th style={{ padding: "12px" }}>Status</th>
+						<th style={{ padding: "12px" }}>Ações</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -94,6 +96,21 @@ export default function ReservasList() {
 									}}
 								>
 									{reserva.status}
+								</td>
+								<td style={{ padding: "12px" }}>
+									<Link
+										to={`/reservas/${reserva.id}`}
+										style={{
+											padding: "6px 12px",
+											background: "#0056b3",
+											color: "white",
+											textDecoration: "none",
+											borderRadius: "4px",
+											fontSize: "14px",
+										}}
+									>
+										Visualizar
+									</Link>
 								</td>
 							</tr>
 						))

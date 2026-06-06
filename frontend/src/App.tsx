@@ -9,6 +9,7 @@ import ClientesList from "./pages/Clientes/List";
 import ClientesCreate from "./pages/Clientes/Create";
 import ReservasList from "./pages/Reservas/List";
 import ReservasCreate from "./pages/Reservas/Create";
+import ReservaDetalhes from "./pages/Reservas/Details";
 
 // Função simples para verificar se o usuário está logado
 const PrivateRoute = ({ children }: { children: React.JSX.Element }) => {
@@ -40,6 +41,7 @@ export default function App() {
 					<Route path="clientes/novo" element={<ClientesCreate />} />
 					<Route path="reservas" element={<ReservasList />} />
 					<Route path="reservas/novo" element={<ReservasCreate />} />
+					<Route path="reservas/:id" element={<ReservaDetalhes />} />
 					<Route
 						path="vendas"
 						element={
