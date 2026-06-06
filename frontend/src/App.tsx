@@ -1,30 +1,68 @@
-import { useEffect, useState } from "react";
-import { api } from "./lib/api";
+// src/App.tsx
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import Layout from "./components/Layout";
+import Login from "./pages/Login";
+import Apartamentos from "./pages/Apartamentos/List";
+import ApartamentoDetalhes from "./pages/Apartamentos/Details";
 
-type ApartamentoDto = {
-	id: string;
-	numero: string;
-	bloco: string;
-	andar: number;
-	area: number;
-	valor: number;
-	status: string;
+// Função simples para verificar se o usuário está logado
+const PrivateRoute = ({ children }: { children: React.JSX.Element }) => {
+	const isAuthenticated = !!localStorage.getItem("direcional_token");
+	return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 
 export default function App() {
-	const [data, setData] = useState<ApartamentoDto[]>([]);
-
-	useEffect(() => {
-		api
-			.get<ApartamentoDto[]>("/apartamentos")
-			.then((res) => setData(res.data))
-			.catch(console.error);
-	}, []);
-
 	return (
-		<main>
-			<h1>Direcional Frontend</h1>
-			<pre>{JSON.stringify(data, null, 2)}</pre>
-		</main>
+		<BrowserRouter>
+			<Routes>
+				{/* Rota Pública */}
+				<Route path="/login" element={<Login />} />
+
+				{/* Rotas Privadas (Enclausuradas pelo Layout) */}
+				<Route
+					path="/"
+					element={
+						<PrivateRoute>
+							<Layout />
+						</PrivateRoute>
+					}
+				>
+					<Route index element={<Navigate to="/apartamentos" replace />} />
+					<Route path="apartamentos" element={<Apartamentos />} />
+					<Route
+						path="apartamentos/:id"
+						element={<ApartamentoDetalhes />}
+					/>{" "}
+					{/* ← Adicione esta linha */}
+					<Route
+						path="clientes"
+						element={
+							<div>
+								<h2>Clientes</h2>
+							</div>
+						}
+					/>
+					<Route
+						path="reservas"
+						element={
+							<div>
+								<h2>Reservas</h2>
+							</div>
+						}
+					/>
+					<Route
+						path="vendas"
+						element={
+							<div>
+								<h2>Vendas</h2>
+							</div>
+						}
+					/>
+				</Route>
+
+				{/* Fallback para rotas não encontradas */}
+				<Route path="*" element={<Navigate to="/login" replace />} />
+			</Routes>
+		</BrowserRouter>
 	);
 }
