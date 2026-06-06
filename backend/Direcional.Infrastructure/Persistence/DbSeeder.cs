@@ -56,6 +56,8 @@ public static class DbSeeder
 		var hashCorretor = BCrypt.Net.BCrypt.HashPassword("Corretor@123");
 		var hashComum = BCrypt.Net.BCrypt.HashPassword("Comum@123");
 
+		// var userAdmin = new Usuario("Admin do Sistema", "admin@direcional.com", "senhaSegura123", perfilAdmin.Id);
+
 		db.Usuarios.AddRange(
 			Usuario.Criar("Administrador", "admin@direcional.com", hashAdmin, admin.Id),
 			Usuario.Criar("Carlos Corretor", "corretor@direcional.com", hashCorretor, corretor.Id),

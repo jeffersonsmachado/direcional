@@ -1,40 +1,47 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Direcional.Domain.Aggregates.Usuarios;
 using Direcional.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Direcional.Infrastructure.Auth;
 
-public class JwtService(IConfiguration configuration) : IJwtService
+public class JwtService : IJwtService
 {
-	public string GerarToken(Guid userId, string email, string perfil, IEnumerable<string> permissoes)
+	private readonly IConfiguration _configuration;
+
+	public JwtService(IConfiguration configuration)
 	{
-		var chave = configuration["Jwt:Chave"]!;
-		var emissor = configuration["Jwt:Emissor"]!;
-		var audiencia = configuration["Jwt:Audiencia"]!;
+		_configuration = configuration;
+	}
+
+	public string GerarToken(Usuario usuario, string roleName)
+	{
+		var tokenHandler = new JwtSecurityTokenHandler();
+		var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"] ?? "ChaveSuperSecretaDirecionalERPDePeloMenos32Caracteres");
 
 		var claims = new List<Claim>
 		{
-			new(JwtRegisteredClaimNames.Sub, userId.ToString()),
-			new(JwtRegisteredClaimNames.Email, email),
-			new(ClaimTypes.Role, perfil),
-			new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+			new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+			new Claim(ClaimTypes.Name, usuario.Nome),
+			new Claim(ClaimTypes.Email, usuario.Email),
+            
+            // 🌟 CRUCIAL: Injeta a Claim do tipo Role exigida pelo [Authorize(Roles = "...")]
+            new Claim(ClaimTypes.Role, roleName)
 		};
 
-		claims.AddRange(permissoes.Select(p => new Claim("permissao", p)));
+		var tokenDescriptor = new SecurityTokenDescriptor
+		{
+			Subject = new ClaimsIdentity(claims),
+			Expires = DateTime.UtcNow.AddHours(8), // Sessão comercial padrão de 8h
+			SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+			Issuer = _configuration["Jwt:Issuer"],
+			Audience = _configuration["Jwt:Audience"]
+		};
 
-		var chaveBytes = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(chave));
-		var credenciais = new SigningCredentials(chaveBytes, SecurityAlgorithms.HmacSha256);
-
-		var token = new JwtSecurityToken(
-			issuer: emissor,
-			audience: audiencia,
-			claims: claims,
-			expires: DateTime.UtcNow.AddHours(8),
-			signingCredentials: credenciais);
-
-		return new JwtSecurityTokenHandler().WriteToken(token);
+		var token = tokenHandler.CreateToken(tokenDescriptor);
+		return tokenHandler.WriteToken(token);
 	}
 }

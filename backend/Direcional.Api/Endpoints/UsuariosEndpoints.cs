@@ -7,16 +7,16 @@ public static class UsuariosEndpoints
 {
 	public static void MapUsuariosEndpoints(this WebApplication app)
 	{
-		app.MapPost("/auth/login", async (LoginCommand cmd, IMediator mediator) =>
+		app.MapPost("/usuarios/auth/login", async (LoginCommand cmd, IMediator mediator) =>
 		{
 			try
 			{
 				var token = await mediator.Send(cmd);
 				return Results.Ok(new { token });
 			}
-			catch (UnauthorizedAccessException)
+			catch (Exception ex)
 			{
-				return Results.Unauthorized();
+				return Results.BadRequest(new { message = ex.Message });
 			}
 		}).AllowAnonymous();
 

@@ -11,6 +11,17 @@ public class Usuario
 
 	private Usuario() { }
 
+	public Usuario(string nome, string email, string senhaTextoPuro, Guid perfilId)
+	{
+		Id = Guid.NewGuid();
+		Nome = nome;
+		Email = email;
+		PerfilId = perfilId;
+
+		// Ao criar o usuário, criptografamos a senha fornecida pelo Admin
+		DefinirSenha(senhaTextoPuro);
+	}
+
 	public static Usuario Criar(string nome, string email, string senhaHash, Guid perfilId)
 	{
 		return new Usuario
@@ -36,4 +47,20 @@ public class Usuario
 	}
 
 	public void TrocarPerfil(Guid perfilId) => PerfilId = perfilId;
+
+	public void DefinirSenha(string senhaTextoPuro)
+	{
+		if (string.IsNullOrWhiteSpace(senhaTextoPuro))
+			throw new ArgumentException("A senha não pode estar em branco.");
+
+		SenhaHash = BCrypt.Net.BCrypt.HashPassword(senhaTextoPuro);
+	}
+
+	public bool VerificarSenha(string senhaDigitada)
+	{
+		if (string.IsNullOrWhiteSpace(senhaDigitada) || string.IsNullOrWhiteSpace(SenhaHash))
+			return false;
+
+		return BCrypt.Net.BCrypt.Verify(senhaDigitada, SenhaHash);
+	}
 }

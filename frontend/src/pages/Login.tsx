@@ -1,8 +1,7 @@
-// src/pages/Login.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { isAxiosError } from "axios";
 import { api } from "../lib/api";
+import axios from "axios";
 
 export default function Login() {
 	const [email, setEmail] = useState("");
@@ -14,20 +13,28 @@ export default function Login() {
 		e.preventDefault();
 		setErro("");
 		try {
-			const response = await api.post<{ token: string }>("/auth/login", {
-				email,
-				senha,
-			});
+			// Ajuste a interface de acordo com o que o seu backend retorna
+			const response = await api.post<{ token: string; perfil: string }>(
+				"/usuarios/auth/login",
+				{ email, senha },
+			);
+
 			localStorage.setItem("direcional_token", response.data.token);
+			// Salva o perfil do usuário (ex: "Admin", "Corretor", "Comum")
+			localStorage.setItem(
+				"direcional_perfil",
+				response.data.perfil || "Comum",
+			);
+
 			navigate("/apartamentos");
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (axios.isAxiosError(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data?.message ||
 						"Falha ao realizar login. Verifique as credenciais.",
 				);
 			} else {
-				setErro("Falha ao realizar login. Verifique as credenciais.");
+				setErro("Ocorreu um erro inesperado.");
 			}
 		}
 	};

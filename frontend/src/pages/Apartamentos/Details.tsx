@@ -21,6 +21,10 @@ export default function ApartamentoDetalhes() {
 	const [loading, setLoading] = useState(true);
 	const [erro, setErro] = useState("");
 
+	const perfilUsuario = localStorage.getItem("direcional_perfil") || "Comum";
+	const isFuncionario =
+		perfilUsuario === "Admin" || perfilUsuario === "Corretor";
+
 	useEffect(() => {
 		if (!id) return;
 		api
@@ -150,70 +154,72 @@ export default function ApartamentoDetalhes() {
 			</div>
 
 			{/* BLOQUEIO DE AÇÕES BASEADO NO STATUS */}
-			<div
-				style={{
-					marginTop: "24px",
-					background: "white",
-					padding: "24px",
-					borderRadius: "8px",
-					boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-				}}
-			>
-				<h3 style={{ marginTop: 0 }}>Ações Comerciais</h3>
+			{isFuncionario && (
+				<div
+					style={{
+						marginTop: "24px",
+						background: "white",
+						padding: "24px",
+						borderRadius: "8px",
+						boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+					}}
+				>
+					<h3 style={{ marginTop: 0 }}>Ações Comerciais</h3>
 
-				{isDisponivel ? (
-					<div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
-						<button
-							onClick={() =>
-								navigate(`/reservas/novo?apartamentoId=${apartamento.id}`)
-							}
+					{isDisponivel ? (
+						<div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
+							<button
+								onClick={() =>
+									navigate(`/reservas/novo?apartamentoId=${apartamento.id}`)
+								}
+								style={{
+									padding: "10px 20px",
+									background: "#eab308",
+									color: "white",
+									border: "none",
+									borderRadius: "4px",
+									cursor: "pointer",
+									fontWeight: "bold",
+								}}
+							>
+								Reservar Imóvel
+							</button>
+							<button
+								onClick={() =>
+									navigate(`/vendas/novo?apartamentoId=${apartamento.id}`)
+								}
+								style={{
+									padding: "10px 20px",
+									background: "#22c55e",
+									color: "white",
+									border: "none",
+									borderRadius: "4px",
+									cursor: "pointer",
+									fontWeight: "bold",
+								}}
+							>
+								Venda Direta
+							</button>
+						</div>
+					) : (
+						<div
 							style={{
-								padding: "10px 20px",
-								background: "#eab308",
-								color: "white",
-								border: "none",
+								marginTop: "15px",
+								padding: "15px",
+								background: "#f8fafc",
+								borderLeft: "4px solid #94a3b8",
 								borderRadius: "4px",
-								cursor: "pointer",
-								fontWeight: "bold",
 							}}
 						>
-							Reservar Imóvel
-						</button>
-						<button
-							onClick={() =>
-								navigate(`/vendas/novo?apartamentoId=${apartamento.id}`)
-							}
-							style={{
-								padding: "10px 20px",
-								background: "#22c55e",
-								color: "white",
-								border: "none",
-								borderRadius: "4px",
-								cursor: "pointer",
-								fontWeight: "bold",
-							}}
-						>
-							Venda Direta
-						</button>
-					</div>
-				) : (
-					<div
-						style={{
-							marginTop: "15px",
-							padding: "15px",
-							background: "#f8fafc",
-							borderLeft: "4px solid #94a3b8",
-							borderRadius: "4px",
-						}}
-					>
-						<p style={{ margin: 0, color: "#475569" }}>
-							{statusLabel === "Reservado"
-								? "Este imóvel encontra-se bloqueado por uma reserva ativa. Acompanhe na aba de Reservas."
-								: "Este imóvel já foi vendido. A unidade não está mais disponível para negociação."}
-						</p>
-					</div>
-				)}
-			</div>
+							<p style={{ margin: 0, color: "#475569" }}>
+								{statusLabel === "Reservado"
+									? "Este imóvel encontra-se bloqueado por uma reserva ativa. Acompanhe na aba de Reservas."
+									: "Este imóvel já foi vendido. A unidade não está mais disponível para negociação."}
+							</p>
+						</div>
+					)}
+				</div>
+			)}
 		</div>
 	);
 }

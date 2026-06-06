@@ -1,6 +1,8 @@
+using Direcional.Domain.Aggregates.Usuarios;
+
 namespace Direcional.Domain.Interfaces;
 
 public interface IJwtService
 {
-	string GerarToken(Guid userId, string email, string perfil, IEnumerable<string> permissoes);
+	string GerarToken(Usuario usuario, string roleName);
 }
