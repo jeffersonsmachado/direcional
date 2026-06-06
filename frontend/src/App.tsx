@@ -4,6 +4,11 @@ import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Apartamentos from "./pages/Apartamentos/List";
 import ApartamentoDetalhes from "./pages/Apartamentos/Details";
+import ApartamentosCreate from "./pages/Apartamentos/Create"; // ← Importe a nova página
+import ClientesList from "./pages/Clientes/List";
+import ClientesCreate from "./pages/Clientes/Create";
+import ReservasList from "./pages/Reservas/List";
+import ReservasCreate from "./pages/Reservas/Create";
 
 // Função simples para verificar se o usuário está logado
 const PrivateRoute = ({ children }: { children: React.JSX.Element }) => {
@@ -29,27 +34,12 @@ export default function App() {
 				>
 					<Route index element={<Navigate to="/apartamentos" replace />} />
 					<Route path="apartamentos" element={<Apartamentos />} />
-					<Route
-						path="apartamentos/:id"
-						element={<ApartamentoDetalhes />}
-					/>{" "}
-					{/* ← Adicione esta linha */}
-					<Route
-						path="clientes"
-						element={
-							<div>
-								<h2>Clientes</h2>
-							</div>
-						}
-					/>
-					<Route
-						path="reservas"
-						element={
-							<div>
-								<h2>Reservas</h2>
-							</div>
-						}
-					/>
+					<Route path="apartamentos/novo" element={<ApartamentosCreate />} />
+					<Route path="apartamentos/:id" element={<ApartamentoDetalhes />} />
+					<Route path="clientes" element={<ClientesList />} />
+					<Route path="clientes/novo" element={<ClientesCreate />} />
+					<Route path="reservas" element={<ReservasList />} />
+					<Route path="reservas/novo" element={<ReservasCreate />} />
 					<Route
 						path="vendas"
 						element={

@@ -19,7 +19,7 @@ export default function Login() {
 				senha,
 			});
 			localStorage.setItem("direcional_token", response.data.token);
-			navigate("/apartamentos/list");
+			navigate("/apartamentos");
 		} catch (err: unknown) {
 			if (isAxiosError<{ message?: string }>(err)) {
 				setErro(

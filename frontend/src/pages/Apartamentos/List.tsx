@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 type ApartamentoDto = {
 	id: string;
@@ -15,6 +16,8 @@ type ApartamentoDto = {
 export default function Apartamentos() {
 	const [apartamentos, setApartamentos] = useState<ApartamentoDto[]>([]);
 	const [loading, setLoading] = useState(true);
+
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		api
@@ -42,6 +45,20 @@ export default function Apartamentos() {
 	return (
 		<div>
 			<h2>Listagem de Apartamentos</h2>
+			<button
+				onClick={() => navigate("/apartamentos/novo")}
+				style={{
+					padding: "10px 20px",
+					background: "#22c55e",
+					color: "white",
+					border: "none",
+					borderRadius: "4px",
+					cursor: "pointer",
+					fontWeight: "bold",
+				}}
+			>
+				+ Novo Apartamento
+			</button>
 			<table
 				style={{
 					width: "100%",
