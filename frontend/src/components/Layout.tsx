@@ -46,6 +46,18 @@ export default function Layout() {
 					<Link to="/vendas" style={{ color: "white", textDecoration: "none" }}>
 						Vendas
 					</Link>
+					<Link
+						to="/usuarios"
+						style={{
+							color: "#93c5fd",
+							textDecoration: "none",
+							marginTop: "15px",
+							borderTop: "1px solid #334155",
+							paddingTop: "15px",
+						}}
+					>
+						⚙️ Operadores
+					</Link>
 				</nav>
 				<button
 					onClick={handleLogout}

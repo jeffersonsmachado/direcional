@@ -10,6 +10,11 @@ import ClientesCreate from "./pages/Clientes/Create";
 import ReservasList from "./pages/Reservas/List";
 import ReservasCreate from "./pages/Reservas/Create";
 import ReservaDetalhes from "./pages/Reservas/Details";
+import VendasList from "./pages/Vendas/List";
+import VendasCreate from "./pages/Vendas/Create";
+import VendaDetalhes from "./pages/Vendas/Details";
+import UsuariosList from "./pages/Usuarios/List";
+import UsuariosCreate from "./pages/Usuarios/Create";
 
 // Função simples para verificar se o usuário está logado
 const PrivateRoute = ({ children }: { children: React.JSX.Element }) => {
@@ -42,14 +47,11 @@ export default function App() {
 					<Route path="reservas" element={<ReservasList />} />
 					<Route path="reservas/novo" element={<ReservasCreate />} />
 					<Route path="reservas/:id" element={<ReservaDetalhes />} />
-					<Route
-						path="vendas"
-						element={
-							<div>
-								<h2>Vendas</h2>
-							</div>
-						}
-					/>
+					<Route path="vendas" element={<VendasList />} />
+					<Route path="vendas/novo" element={<VendasCreate />} />
+					<Route path="vendas/:id" element={<VendaDetalhes />} />
+					<Route path="usuarios" element={<UsuariosList />} />
+					<Route path="usuarios/novo" element={<UsuariosCreate />} />
 				</Route>
 
 				{/* Fallback para rotas não encontradas */}
