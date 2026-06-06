@@ -14,25 +14,24 @@ export default function Login() {
 		setErro("");
 		try {
 			// Ajuste a interface de acordo com o que o seu backend retorna
-			const response = await api.post<{ token: string; perfil: string }>(
-				"/usuarios/auth/login",
-				{ email, senha },
-			);
+			const response = await api.post<{
+				token: { token: string; perfil: string };
+			}>("/usuarios/auth/login", {
+				email,
+				senha,
+			});
 
-			localStorage.setItem("direcional_token", response.data.token);
-			// Salva o perfil do usuário (ex: "Admin", "Corretor", "Comum")
+			localStorage.setItem("direcional_token", response.data.token.token);
+
 			localStorage.setItem(
 				"direcional_perfil",
-				response.data.perfil || "Comum",
+				response.data.token.perfil || "Comum",
 			);
 
 			navigate("/apartamentos");
 		} catch (err: unknown) {
 			if (axios.isAxiosError(err)) {
-				setErro(
-					err.response?.data?.message ||
-						"Falha ao realizar login. Verifique as credenciais.",
-				);
+				setErro(err.response?.data?.message || "Falha ao realizar login.");
 			} else {
 				setErro("Ocorreu um erro inesperado.");
 			}

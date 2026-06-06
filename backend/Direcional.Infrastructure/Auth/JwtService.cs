@@ -20,7 +20,8 @@ public class JwtService : IJwtService
 	public string GerarToken(Usuario usuario, string roleName)
 	{
 		var tokenHandler = new JwtSecurityTokenHandler();
-		var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"] ?? "ChaveSuperSecretaDirecionalERPDePeloMenos32Caracteres");
+		// var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Secret"] ?? "ChaveSuperSecretaDirecionalERPDePeloMenos32Caracteres");
+		var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Chave"]!);
 
 		var claims = new List<Claim>
 		{
@@ -35,10 +36,12 @@ public class JwtService : IJwtService
 		var tokenDescriptor = new SecurityTokenDescriptor
 		{
 			Subject = new ClaimsIdentity(claims),
-			Expires = DateTime.UtcNow.AddHours(8), // Sessão comercial padrão de 8h
-			SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-			Issuer = _configuration["Jwt:Issuer"],
-			Audience = _configuration["Jwt:Audience"]
+			Expires = DateTime.UtcNow.AddHours(8),
+			SigningCredentials = new SigningCredentials(
+				new SymmetricSecurityKey(key),
+				SecurityAlgorithms.HmacSha256Signature),
+			Issuer = _configuration["Jwt:Emissor"],
+			Audience = _configuration["Jwt:Audiencia"]
 		};
 
 		var token = tokenHandler.CreateToken(tokenDescriptor);

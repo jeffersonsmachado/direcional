@@ -19,6 +19,10 @@ export default function Apartamentos() {
 
 	const navigate = useNavigate();
 
+	const perfilUsuario = localStorage.getItem("direcional_perfil") || "Comum";
+	const isFuncionario =
+		perfilUsuario === "Admin" || perfilUsuario === "Corretor";
+
 	useEffect(() => {
 		api
 			.get<ApartamentoDto[]>("/apartamentos")
@@ -45,20 +49,22 @@ export default function Apartamentos() {
 	return (
 		<div>
 			<h2>Listagem de Apartamentos</h2>
-			<button
-				onClick={() => navigate("/apartamentos/novo")}
-				style={{
-					padding: "10px 20px",
-					background: "#22c55e",
-					color: "white",
-					border: "none",
-					borderRadius: "4px",
-					cursor: "pointer",
-					fontWeight: "bold",
-				}}
-			>
-				+ Novo Apartamento
-			</button>
+			{isFuncionario && (
+				<button
+					onClick={() => navigate("/apartamentos/novo")}
+					style={{
+						padding: "10px 20px",
+						background: "#22c55e",
+						color: "white",
+						border: "none",
+						borderRadius: "4px",
+						cursor: "pointer",
+						fontWeight: "bold",
+					}}
+				>
+					+ Novo Apartamento
+				</button>
+			)}
 			<table
 				style={{
 					width: "100%",
