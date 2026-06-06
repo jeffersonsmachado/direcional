@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { api } from "../../lib/api";
+import "../../App.css";
 
 type ClienteDto = { id: string; nome: string; cpf: string };
 type ApartamentoDto = {
@@ -206,7 +207,6 @@ export default function ReservasCreate() {
 								padding: "10px",
 								borderRadius: "4px",
 								border: "1px solid #cbd5e1",
-								background: "white",
 							}}
 						>
 							<option value="">-- Selecione o Cliente Comprador --</option>
@@ -251,7 +251,7 @@ export default function ReservasCreate() {
 							onClick={() => navigate(-1)}
 							style={{
 								padding: "10px 20px",
-								background: "#e2e8f0",
+								background: "red",
 								border: "none",
 								borderRadius: "4px",
 								cursor: "pointer",

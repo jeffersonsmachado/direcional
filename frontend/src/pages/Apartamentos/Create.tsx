@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { api } from "../../lib/api";
+import "../../App.css";
+import { NumericFormat } from "react-number-format";
 
 export default function ApartamentosCreate() {
 	const navigate = useNavigate();
@@ -157,13 +159,18 @@ export default function ApartamentosCreate() {
 						<label style={{ fontWeight: "500", color: "#334155" }}>
 							Área Privativa (m²) *
 						</label>
-						<input
-							type="number"
-							step="0.01"
-							placeholder="Ex: 58.5"
+						<NumericFormat
 							value={area}
-							onChange={(e) => setArea(e.target.value)}
-							required
+							onValueChange={(values) => {
+								setArea(values.value);
+							}}
+							thousandSeparator="."
+							decimalSeparator=","
+							decimalScale={2}
+							fixedDecimalScale={true}
+							allowNegative={false}
+							placeholder="100,00"
+							className="your-custom-input-styling"
 							style={{
 								padding: "8px",
 								borderRadius: "4px",
@@ -177,13 +184,19 @@ export default function ApartamentosCreate() {
 					<label style={{ fontWeight: "500", color: "#334155" }}>
 						Valor de Venda (R$) *
 					</label>
-					<input
-						type="number"
-						step="0.01"
-						placeholder="Ex: 250000.00"
+					<NumericFormat
 						value={valor}
-						onChange={(e) => setValor(e.target.value)}
-						required
+						onValueChange={(values) => {
+							setValor(values.value);
+						}}
+						thousandSeparator="."
+						decimalSeparator=","
+						prefix={"R$ "}
+						decimalScale={2}
+						fixedDecimalScale={true}
+						allowNegative={false}
+						placeholder="R$ 0,00"
+						className="your-custom-input-styling"
 						style={{
 							padding: "8px",
 							borderRadius: "4px",
@@ -205,7 +218,7 @@ export default function ApartamentosCreate() {
 						onClick={() => navigate("/apartamentos")}
 						style={{
 							padding: "10px 20px",
-							background: "#e2e8f0",
+							background: "red",
 							border: "none",
 							borderRadius: "4px",
 							cursor: "pointer",

@@ -87,7 +87,9 @@ export default function Apartamentos() {
 								Bloco {ap.bloco} - Ap {ap.numero}
 							</td>
 							<td style={{ padding: "12px" }}>{ap.andar}º</td>
-							<td style={{ padding: "12px" }}>{ap.area} m²</td>
+							<td style={{ padding: "12px" }}>
+								{ap.area.toLocaleString("pt-BR")} m²
+							</td>
 							<td style={{ padding: "12px" }}>
 								{ap.valor.toLocaleString("pt-BR", {
 									style: "currency",

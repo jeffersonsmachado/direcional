@@ -5,23 +5,25 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Direcional.Application.Vendas;
 
-public record CancelarVendaCommand(Guid Id) : IRequest;
+public record CancelarVendaCommand(Guid VendaId) : IRequest;
 
-public class CancelarVendaCommandHandler(AppDbContext db)
-	: IRequestHandler<CancelarVendaCommand>
+public class CancelarVendaCommandHandler(AppDbContext db) : IRequestHandler<CancelarVendaCommand>
 {
-	public async Task Handle(CancelarVendaCommand cmd, CancellationToken ct)
+	public async Task Handle(CancelarVendaCommand command, CancellationToken ct)
 	{
-		var venda = await db.Vendas.FirstOrDefaultAsync(v => v.Id == cmd.Id, ct)
-			?? throw new InvalidOperationException("Venda não encontrada.");
+		var venda = await db.Vendas.FindAsync(new object[] { command.VendaId }, ct)
+					?? throw new Exception("Venda não encontrada.");
 
-		if (venda.Status != StatusVenda.EmAndamento)
-			throw new InvalidOperationException("Apenas vendas em andamento podem ser canceladas.");
+		var apartamento = await db.Apartamentos.FindAsync(new object[] { venda.ApartamentoId }, ct)
+						  ?? throw new Exception("Apartamento não encontrado.");
 
-		var apartamento = await db.Apartamentos.FindAsync([venda.ApartamentoId], ct);
-		apartamento?.MarcarComoDisponivel();
+		// 1. Regra de Negócio: Cancelar venda
+		venda.Cancelar(); // Status = Cancelado
 
-		venda.Cancelar();
+		// 2. Regra de Negócio: Disponibilizar apartamento
+		apartamento.MarcarComoDisponivel(); // Status = Disponivel
+
+		// 3. Persistência
 		await db.SaveChangesAsync(ct);
 	}
 }

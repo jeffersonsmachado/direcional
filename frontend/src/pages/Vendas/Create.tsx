@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { api } from "../../lib/api";
+import "../../App.css";
 
 type ClienteDto = { id: string; nome: string; cpf: string };
 type ApartamentoDto = {

@@ -1,4 +1,3 @@
-// src/components/Layout.tsx
 import { Link, Outlet, useNavigate } from "react-router-dom";
 
 export default function Layout() {
@@ -11,7 +10,6 @@ export default function Layout() {
 
 	return (
 		<div style={{ display: "flex", minHeight: "100vh" }}>
-			{/* Barra Lateral de Navegação */}
 			<aside
 				style={{
 					width: "240px",
@@ -23,7 +21,7 @@ export default function Layout() {
 					gap: "15px",
 				}}
 			>
-				<h3>Direcional ERP</h3>
+				<h3>Direcional</h3>
 				<nav style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
 					<Link
 						to="/apartamentos"
@@ -75,7 +73,6 @@ export default function Layout() {
 				</button>
 			</aside>
 
-			{/* Conteúdo da Página */}
 			<main style={{ flex: 1, padding: "20px", background: "#f8fafc" }}>
 				<Outlet />
 			</main>

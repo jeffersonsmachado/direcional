@@ -1,4 +1,27 @@
-.counter {
+input,
+select,
+textarea {
+	background-color: var(--code-bg);
+	color: var(--text);
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Removes arrows from Firefox */
+input[type="number"] {
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+input:placeholder-shown {
+	background-color: #f0f0f0; /* Light gray background */
+}
+
+/* .counter {
   font-size: 16px;
   padding: 5px 10px;
   border-radius: 5px;
@@ -181,4 +204,4 @@
     right: 0;
     border-right-color: var(--border);
   }
-}
+} */

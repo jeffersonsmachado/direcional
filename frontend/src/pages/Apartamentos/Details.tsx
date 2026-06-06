@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
 
 type ApartamentoDetalheDto = {
@@ -9,8 +9,7 @@ type ApartamentoDetalheDto = {
 	andar: number;
 	area: number;
 	valor: number;
-	status: string;
-	// Se seu backend retornar histórico de reservas ou dados do cliente comprador, adicione aqui
+	status: string | number; // 0: Disponivel, 1: Reservado, 2: Vendido
 };
 
 export default function ApartamentoDetalhes() {
@@ -24,43 +23,53 @@ export default function ApartamentoDetalhes() {
 
 	useEffect(() => {
 		if (!id) return;
-
 		api
 			.get<ApartamentoDetalheDto>(`/apartamentos/${id}`)
 			.then((res) => setApartamento(res.data))
-			.catch((err) => {
-				console.error(err);
-				setErro("Não foi possível carregar os detalhes deste apartamento.");
-			})
+			.catch(() => setErro("Não foi possível carregar os detalhes do imóvel."))
 			.finally(() => setLoading(false));
 	}, [id]);
 
-	const getStatusStyle = (status: string) => {
-		switch (status.toLowerCase()) {
-			case "disponivel":
+	// Função pura para resolver o Status
+	const resolverStatus = (status: string | number) => {
+		if (status === 0 || status === "Disponivel" || status === "Disponível")
+			return "Disponível";
+		if (status === 1 || status === "Reservado") return "Reservado";
+		if (status === 2 || status === "Vendido") return "Vendido";
+		return String(status);
+	};
+
+	const getStatusStyle = (statusLabel: string) => {
+		switch (statusLabel) {
+			case "Disponível":
 				return { background: "#dcfce7", color: "#15803d" };
-			case "reservado":
+			case "Reservado":
 				return { background: "#fef9c3", color: "#a16207" };
-			case "vendido":
+			case "Vendido":
 				return { background: "#fee2e2", color: "#b91c1c" };
 			default:
 				return { background: "#e2e8f0", color: "#475569" };
 		}
 	};
 
-	if (loading) return <p>Carregando informações do imóvel...</p>;
-	if (erro)
+	if (loading)
+		return (
+			<p style={{ textAlign: "center", padding: "40px" }}>
+				Carregando dados da unidade...
+			</p>
+		);
+	if (erro || !apartamento)
 		return (
 			<div style={{ color: "red", padding: "20px" }}>
-				{erro} <br />
-				<Link to="/apartamentos">Voltar para a lista</Link>
+				{erro || "Imóvel não encontrado"}
 			</div>
 		);
-	if (!apartamento) return <p>Apartamento não encontrado.</p>;
+
+	const statusLabel = resolverStatus(apartamento.status);
+	const isDisponivel = statusLabel === "Disponível";
 
 	return (
-		<div style={{ maxWidth: "800px", margin: "0 auto" }}>
-			{/* Cabeçalho com Link de Voltar */}
+		<div style={{ maxWidth: "800px", margin: "0 auto", paddingBottom: "40px" }}>
 			<div
 				style={{
 					display: "flex",
@@ -70,7 +79,7 @@ export default function ApartamentoDetalhes() {
 				}}
 			>
 				<button
-					onClick={() => navigate(-1)}
+					onClick={() => navigate("/apartamentos")}
 					style={{
 						padding: "8px 16px",
 						cursor: "pointer",
@@ -86,7 +95,6 @@ export default function ApartamentoDetalhes() {
 				</h2>
 			</div>
 
-			{/* Cartão de Detalhes Principal */}
 			<div
 				style={{
 					background: "white",
@@ -105,11 +113,17 @@ export default function ApartamentoDetalhes() {
 					</strong>
 				</div>
 				<div>
-					<p style={{ color: "#64748b", margin: "0 0 4px 0" }}>Área</p>
-					<strong style={{ fontSize: "18px" }}>{apartamento.area} m²</strong>
+					<p style={{ color: "#64748b", margin: "0 0 4px 0" }}>
+						Área Privativa
+					</p>
+					<strong style={{ fontSize: "18px" }}>
+						{apartamento.area.toLocaleString("pt-BR")} m²
+					</strong>
 				</div>
 				<div>
-					<p style={{ color: "#64748b", margin: "0 0 4px 0" }}>Preço</p>
+					<p style={{ color: "#64748b", margin: "0 0 4px 0" }}>
+						Preço de Tabela
+					</p>
 					<strong style={{ fontSize: "22px", color: "#0f172a" }}>
 						{apartamento.valor.toLocaleString("pt-BR", {
 							style: "currency",
@@ -127,76 +141,78 @@ export default function ApartamentoDetalhes() {
 							borderRadius: "16px",
 							fontSize: "14px",
 							fontWeight: "bold",
-							...getStatusStyle(apartamento.status),
+							...getStatusStyle(statusLabel),
 						}}
 					>
-						{apartamento.status}
+						{statusLabel}
 					</span>
 				</div>
 			</div>
 
-			{/* Seção de Ações de Negócio dinâmicas baseado no Status */}
+			{/* BLOQUEIO DE AÇÕES BASEADO NO STATUS */}
 			<div
 				style={{
 					marginTop: "24px",
 					background: "white",
-					padding: "20px",
+					padding: "24px",
 					borderRadius: "8px",
 					boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
 				}}
 			>
-				<h3>Ações de Vendas</h3>
-				<div style={{ display: "flex", gap: "12px", marginTop: "15px" }}>
-					{apartamento.status.toLowerCase() === "disponivel" && (
-						<>
-							<button
-								onClick={() =>
-									navigate(`/reservas/novo?apartamentoId=${apartamento.id}`)
-								}
-								style={{
-									padding: "10px 20px",
-									background: "#eab308",
-									color: "white",
-									border: "none",
-									borderRadius: "4px",
-									cursor: "pointer",
-									fontWeight: "bold",
-								}}
-							>
-								Reservar Imóvel
-							</button>
-							<button
-								onClick={() =>
-									navigate(`/vendas/novo?apartamentoId=${apartamento.id}`)
-								}
-								style={{
-									padding: "10px 20px",
-									background: "#22c55e",
-									color: "white",
-									border: "none",
-									borderRadius: "4px",
-									cursor: "pointer",
-									fontWeight: "bold",
-								}}
-							>
-								Iniciar Venda
-							</button>
-						</>
-					)}
+				<h3 style={{ marginTop: 0 }}>Ações Comerciais</h3>
 
-					{apartamento.status.toLowerCase() === "reservado" && (
-						<p style={{ color: "#64748b", fontStyle: "italic" }}>
-							Este imóvel encontra-se reservado. Para efetivar, acesse a aba de{" "}
-							<Link to="/reservas">Reservas</Link>.
+				{isDisponivel ? (
+					<div style={{ display: "flex", gap: "15px", marginTop: "15px" }}>
+						<button
+							onClick={() =>
+								navigate(`/reservas/novo?apartamentoId=${apartamento.id}`)
+							}
+							style={{
+								padding: "10px 20px",
+								background: "#eab308",
+								color: "white",
+								border: "none",
+								borderRadius: "4px",
+								cursor: "pointer",
+								fontWeight: "bold",
+							}}
+						>
+							Reservar Imóvel
+						</button>
+						<button
+							onClick={() =>
+								navigate(`/vendas/novo?apartamentoId=${apartamento.id}`)
+							}
+							style={{
+								padding: "10px 20px",
+								background: "#22c55e",
+								color: "white",
+								border: "none",
+								borderRadius: "4px",
+								cursor: "pointer",
+								fontWeight: "bold",
+							}}
+						>
+							Venda Direta
+						</button>
+					</div>
+				) : (
+					<div
+						style={{
+							marginTop: "15px",
+							padding: "15px",
+							background: "#f8fafc",
+							borderLeft: "4px solid #94a3b8",
+							borderRadius: "4px",
+						}}
+					>
+						<p style={{ margin: 0, color: "#475569" }}>
+							{statusLabel === "Reservado"
+								? "Este imóvel encontra-se bloqueado por uma reserva ativa. Acompanhe na aba de Reservas."
+								: "Este imóvel já foi vendido. A unidade não está mais disponível para negociação."}
 						</p>
-					)}
-
-					{apartamento.status.toLowerCase() === "vendido" && (
-						<p style={{ color: "#ef4444", fontWeight: "bold" }}>
-							Unidade vendida. Contrato em andamento no módulo financeiro.
-						</p>
-					)}
-				</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);

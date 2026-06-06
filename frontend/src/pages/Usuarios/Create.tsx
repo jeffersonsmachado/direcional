@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { api } from "../../lib/api";
+import "../../App.css";
 
 type PerfilDto = {
 	id: string;
@@ -113,10 +114,11 @@ export default function UsuariosCreate() {
 						value={nome}
 						onChange={(e) => setNome(e.target.value)}
 						required
+						placeholder="Nome do Cliente"
 						style={{
 							padding: "10px",
 							borderRadius: "4px",
-							border: "1px solid #cbd5e1",
+							border: "1px solid #e1cbde",
 						}}
 					/>
 				</div>
@@ -135,7 +137,7 @@ export default function UsuariosCreate() {
 						style={{
 							padding: "10px",
 							borderRadius: "4px",
-							border: "1px solid #cbd5e1",
+							border: "1px solid #e1cbde",
 						}}
 					/>
 				</div>
@@ -149,10 +151,11 @@ export default function UsuariosCreate() {
 						onChange={(e) => setSenha(e.target.value)}
 						required
 						minLength={6}
+						placeholder=""
 						style={{
 							padding: "10px",
 							borderRadius: "4px",
-							border: "1px solid #cbd5e1",
+							border: "1px solid #e1cbde",
 						}}
 					/>
 					<small style={{ color: "#64748b" }}>
@@ -204,7 +207,7 @@ export default function UsuariosCreate() {
 						onClick={() => navigate("/usuarios")}
 						style={{
 							padding: "10px 20px",
-							background: "#e2e8f0",
+							background: "red",
 							border: "none",
 							borderRadius: "4px",
 							cursor: "pointer",

@@ -2,13 +2,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { api } from "../../lib/api";
+import { InputMask } from "@react-input/mask";
+import "../../App.css";
 
 export default function ClientesCreate() {
 	const navigate = useNavigate();
 	const [nome, setNome] = useState("");
 	const [cpf, setCpf] = useState("");
+	const [cpfMasked, setCpfMasked] = useState("");
 	const [email, setEmail] = useState("");
 	const [telefone, setTelefone] = useState("");
+	const [telefoneMasked, setTelefoneMasked] = useState("");
 	const [salvando, setSalvando] = useState(false);
 	const [erro, setErro] = useState("");
 
@@ -42,6 +46,22 @@ export default function ClientesCreate() {
 		}
 	};
 
+	const handleTelefone = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const maskedValue = e.target.value;
+		const unmaskedValue = maskedValue.replace(/\D/g, "");
+		console.log(unmaskedValue);
+		setTelefoneMasked(maskedValue);
+		setTelefone(unmaskedValue);
+	};
+
+	const handleCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const maskedValue = e.target.value;
+		const unmaskedValue = maskedValue.replace(/\D/g, "");
+		console.log(unmaskedValue);
+		setCpfMasked(maskedValue);
+		setCpf(unmaskedValue);
+	};
+
 	return (
 		<div
 			style={{
@@ -53,7 +73,9 @@ export default function ClientesCreate() {
 				boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
 			}}
 		>
-			<h2 style={{ marginBottom: "20px" }}>Cadastrar Novo Cliente</h2>
+			<h2 style={{ marginBottom: "20px", color: "#4e4d4d" }}>
+				Cadastrar Novo Cliente
+			</h2>
 
 			{erro && (
 				<p
@@ -82,6 +104,7 @@ export default function ClientesCreate() {
 						value={nome}
 						onChange={(e) => setNome(e.target.value)}
 						required
+						placeholder="Nome do Cliente"
 						style={{
 							padding: "8px",
 							borderRadius: "4px",
@@ -92,12 +115,13 @@ export default function ClientesCreate() {
 
 				<div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
 					<label style={{ fontWeight: "500", color: "#334155" }}>CPF *</label>
-					<input
-						type="text"
+					<InputMask
+						id="cpf"
+						value={cpfMasked}
+						onChange={handleCpf}
+						mask="___.___.___-__"
+						replacement={{ _: /\d/ }}
 						placeholder="000.000.000-00"
-						value={cpf}
-						onChange={(e) => setCpf(e.target.value)}
-						required
 						style={{
 							padding: "8px",
 							borderRadius: "4px",
@@ -128,11 +152,13 @@ export default function ClientesCreate() {
 					<label style={{ fontWeight: "500", color: "#334155" }}>
 						Telefone de Contato
 					</label>
-					<input
-						type="text"
-						placeholder="(00) 00000-0000"
-						value={telefone}
-						onChange={(e) => setTelefone(e.target.value)}
+					<InputMask
+						id="phone"
+						value={telefoneMasked}
+						onChange={handleTelefone}
+						mask="(__) ____-____"
+						replacement={{ _: /\d/ }}
+						placeholder="(00) 0000-0000"
 						style={{
 							padding: "8px",
 							borderRadius: "4px",
@@ -155,7 +181,7 @@ export default function ClientesCreate() {
 						onClick={() => navigate("/clientes")}
 						style={{
 							padding: "10px 20px",
-							background: "#e2e8f0",
+							background: "red",
 							border: "none",
 							borderRadius: "4px",
 							cursor: "pointer",

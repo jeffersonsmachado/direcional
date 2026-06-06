@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../lib/api";
+import { PatternFormat } from "react-number-format";
 
 type ClienteDto = {
 	id: string;
@@ -114,9 +115,35 @@ export default function ClientesList() {
 								<td style={{ padding: "12px", fontWeight: "500" }}>
 									{cliente.nome}
 								</td>
-								<td style={{ padding: "12px" }}>{cliente.cpf}</td>
+								<td style={{ padding: "12px" }}>
+									<PatternFormat
+										type="tel"
+										format="###.###.###-##"
+										mask="_"
+										value={cliente.cpf}
+										placeholder="000.000.000-00"
+										disabled
+										style={{
+											background: "white",
+											border: "none",
+										}}
+									/>
+								</td>
 								<td style={{ padding: "12px" }}>{cliente.email}</td>
-								<td style={{ padding: "12px" }}>{cliente.telefone}</td>
+								<td style={{ padding: "12px" }}>
+									<PatternFormat
+										type="tel"
+										format="(##) ####-####"
+										mask="_"
+										value={cliente.telefone}
+										placeholder="(00) 0000-0000"
+										disabled
+										style={{
+											background: "white",
+											border: "none",
+										}}
+									/>
+								</td>
 							</tr>
 						))
 					)}

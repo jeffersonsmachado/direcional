@@ -73,7 +73,7 @@ export default function VendaDetalhes() {
 		setProcessando(true);
 
 		try {
-			await api.post(`/vendas/${id}/cancelar`);
+			await api.patch(`/vendas/${id}/cancelar`);
 
 			// Atualiza o estado raiz de forma direta e atômica. Sem cascatas de efeitos.
 			if (venda) {
@@ -119,7 +119,7 @@ export default function VendaDetalhes() {
 
 	// 🚀 ESTADO DERIVADO (Calculado puramente em tempo de renderização, sem setState!)
 	const obterConfigStatus = (status: string | number) => {
-		if (status === 0 || status === "Pendente")
+		if (status === 0 || status === "EmAndamento")
 			return {
 				label: "Pendente",
 				col: "#a16207",
