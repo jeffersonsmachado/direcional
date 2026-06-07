@@ -33,7 +33,6 @@ export default function ApartamentosList() {
 		totalRegistros: 0,
 	});
 
-	// O estado loading já nasce como TRUE, eliminando a necessidade de setá-lo no useEffect
 	const [loading, setLoading] = useState(true);
 	const [erro, setErro] = useState("");
 
@@ -41,9 +40,7 @@ export default function ApartamentosList() {
 	const isFuncionario =
 		perfilUsuario === "Admin" || perfilUsuario === "Corretor";
 
-	// 1. EFEITO DE MONTAGEM INICIAL (Executa apenas uma vez)
 	useEffect(() => {
-		// A chamada é feita, e todos os setStates ocorrem de forma ASSÍNCRONA na resolução da Promise.
 		api
 			.get<PagedResponse<ApartamentoDto>>(
 				`/apartamentos?pageNumber=1&pageSize=3`,
@@ -61,13 +58,11 @@ export default function ApartamentosList() {
 				setErro("Falha ao carregar a lista de apartamentos.");
 			})
 			.finally(() => {
-				setLoading(false); // Assíncrono: Seguro!
+				setLoading(false);
 			});
-	}, []); // Array vazio: Sem dependências reativas que causem loops.
+	}, []);
 
-	// 2. FUNÇÃO DE PAGINAÇÃO (Disparada EXCLUSIVAMENTE por eventos do usuário)
 	const carregarPagina = async (novaPagina: number) => {
-		// Como isto é invocado por um onClick, setStates síncronos são o padrão correto do React.
 		setLoading(true);
 		setErro("");
 

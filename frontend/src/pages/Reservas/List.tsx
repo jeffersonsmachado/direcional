@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../../lib/api";
 import { Link } from "react-router-dom";
+import { isAxiosError } from "axios";
 
 type ReservaDto = {
 	id: string;
@@ -13,21 +14,86 @@ type ReservaDto = {
 	status: string; // Ex: Ativa, Cancelada, Efetivada
 };
 
+type PagedResponse<T> = {
+	items: T[];
+	totalCount: number;
+	pageNumber: number;
+	pageSize: number;
+	totalPages: number;
+	hasPreviousPage: boolean;
+	hasNextPage: boolean;
+};
+
 export default function ReservasList() {
 	const [reservas, setReservas] = useState<ReservaDto[]>([]);
+	const [infoPaginacao, setInfoPaginacao] = useState({
+		paginaAtual: 1,
+		totalPaginas: 1,
+		totalRegistros: 0,
+	});
 	const [loading, setLoading] = useState(true);
 	const [erro, setErro] = useState("");
 
 	useEffect(() => {
 		api
-			.get<ReservaDto[]>("/reservas")
-			.then((res) => setReservas(res.data))
+			.get<PagedResponse<ReservaDto>>(`/reservas?pageNumber=1&pageSize=3`)
+			.then((res) => {
+				setReservas(res.data.items);
+				setInfoPaginacao({
+					paginaAtual: res.data.pageNumber,
+					totalPaginas: res.data.totalPages,
+					totalRegistros: res.data.totalCount,
+				});
+			})
 			.catch((err) => {
 				console.error(err);
-				setErro("Falha ao carregar as reservas.");
+				setErro("Falha ao carregar a lista de reservas.");
 			})
-			.finally(() => setLoading(false));
+			.finally(() => {
+				setLoading(false);
+			});
 	}, []);
+
+	const carregarPagina = async (novaPagina: number) => {
+		setLoading(true);
+		setErro("");
+
+		try {
+			const res = await api.get<PagedResponse<ReservaDto>>(
+				`/reservas?pageNumber=${novaPagina}&pageSize=3`,
+			);
+
+			setReservas(res.data.items);
+			setInfoPaginacao({
+				paginaAtual: res.data.pageNumber,
+				totalPaginas: res.data.totalPages,
+				totalRegistros: res.data.totalCount,
+			});
+		} catch (err: unknown) {
+			if (isAxiosError<{ message?: string }>(err)) {
+				setErro(
+					err.response?.data?.message ??
+						"Falha ao navegar para a página solicitada.",
+				);
+			} else {
+				setErro("Falha ao navegar para a página solicitada.");
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handlePaginaAnterior = () => {
+		if (infoPaginacao.paginaAtual > 1) {
+			carregarPagina(infoPaginacao.paginaAtual - 1);
+		}
+	};
+
+	const handlePaginaProxima = () => {
+		if (infoPaginacao.paginaAtual < infoPaginacao.totalPaginas) {
+			carregarPagina(infoPaginacao.paginaAtual + 1);
+		}
+	};
 
 	if (loading) return <p>Carregando reservas...</p>;
 
@@ -117,6 +183,72 @@ export default function ReservasList() {
 					)}
 				</tbody>
 			</table>
+
+			{/* CONTROLES DE PAGINAÇÃO */}
+			{!loading && infoPaginacao.totalPaginas > 0 && (
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "space-between",
+						alignItems: "center",
+						padding: "16px",
+						borderTop: "1px solid #e2e8f0",
+						background: "#f8fafc",
+					}}
+				>
+					<span style={{ fontSize: "14px", color: "#64748b" }}>
+						Mostrando página <strong>{infoPaginacao.paginaAtual}</strong> de{" "}
+						<strong>{infoPaginacao.totalPaginas}</strong>
+					</span>
+
+					<div style={{ display: "flex", gap: "8px" }}>
+						<button
+							onClick={handlePaginaAnterior}
+							disabled={infoPaginacao.paginaAtual === 1}
+							style={{
+								padding: "8px 16px",
+								borderRadius: "4px",
+								border: "1px solid #cbd5e1",
+								background:
+									infoPaginacao.paginaAtual === 1 ? "#f1f5f9" : "white",
+								color: infoPaginacao.paginaAtual === 1 ? "#94a3b8" : "#334155",
+								cursor:
+									infoPaginacao.paginaAtual === 1 ? "not-allowed" : "pointer",
+								fontWeight: "500",
+							}}
+						>
+							Anterior
+						</button>
+
+						<button
+							onClick={handlePaginaProxima}
+							disabled={
+								infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+							}
+							style={{
+								padding: "8px 16px",
+								borderRadius: "4px",
+								border: "1px solid #cbd5e1",
+								background:
+									infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+										? "#f1f5f9"
+										: "white",
+								color:
+									infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+										? "#94a3b8"
+										: "#334155",
+								cursor:
+									infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+										? "not-allowed"
+										: "pointer",
+								fontWeight: "500",
+							}}
+						>
+							Próxima
+						</button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

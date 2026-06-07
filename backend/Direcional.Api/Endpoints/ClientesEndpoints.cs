@@ -15,7 +15,7 @@ public static class ClientesEndpoints
 
 			var result = await mediator.Send(query);
 
-			Results.Ok(result);
+			return Results.Ok(result);
 		});
 
 		group.MapGet("/{id:guid}", async (Guid id, IMediator mediator) =>

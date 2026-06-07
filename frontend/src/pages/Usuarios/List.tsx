@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 import { api } from "../../lib/api";
 
 type UsuarioDto = {
@@ -8,27 +9,90 @@ type UsuarioDto = {
 	email: string;
 	ativo: boolean;
 	perfilNome?: string; // Dependendo do seu DTO, pode vir a string direta ou o objeto aninhado
-	perfil?: { nome: string };
+	perfil?: string;
+};
+
+type PagedResponse<T> = {
+	items: T[];
+	totalCount: number;
+	pageNumber: number;
+	pageSize: number;
+	totalPages: number;
+	hasPreviousPage: boolean;
+	hasNextPage: boolean;
 };
 
 export default function UsuariosList() {
 	const [usuarios, setUsuarios] = useState<UsuarioDto[]>([]);
+	const [infoPaginacao, setInfoPaginacao] = useState({
+		paginaAtual: 1,
+		totalPaginas: 1,
+		totalRegistros: 0,
+	});
 	const [loading, setLoading] = useState(true);
 	const [erro, setErro] = useState("");
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		api
-			.get<UsuarioDto[]>("/usuarios")
-			.then((res) => setUsuarios(res.data))
+			.get<PagedResponse<UsuarioDto>>(`/usuarios?pageNumber=1&pageSize=3`)
+			.then((res) => {
+				setUsuarios(res.data.items);
+				setInfoPaginacao({
+					paginaAtual: res.data.pageNumber,
+					totalPaginas: res.data.totalPages,
+					totalRegistros: res.data.totalCount,
+				});
+			})
 			.catch((err) => {
 				console.error(err);
-				setErro(
-					"Não foi possível carregar a lista de usuários. Verifique se você tem permissão de administrador.",
-				);
+				setErro("Falha ao carregar a lista de usuários.");
 			})
-			.finally(() => setLoading(false));
+			.finally(() => {
+				setLoading(false);
+			});
 	}, []);
+
+	const carregarPagina = async (novaPagina: number) => {
+		setLoading(true);
+		setErro("");
+
+		try {
+			const res = await api.get<PagedResponse<UsuarioDto>>(
+				`/usuarios?pageNumber=${novaPagina}&pageSize=3`,
+			);
+
+			setUsuarios(res.data.items);
+			setInfoPaginacao({
+				paginaAtual: res.data.pageNumber,
+				totalPaginas: res.data.totalPages,
+				totalRegistros: res.data.totalCount,
+			});
+		} catch (err: unknown) {
+			if (isAxiosError<{ message?: string }>(err)) {
+				setErro(
+					err.response?.data?.message ??
+						"Falha ao navegar para a página solicitada.",
+				);
+			} else {
+				setErro("Falha ao navegar para a página solicitada.");
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handlePaginaAnterior = () => {
+		if (infoPaginacao.paginaAtual > 1) {
+			carregarPagina(infoPaginacao.paginaAtual - 1);
+		}
+	};
+
+	const handlePaginaProxima = () => {
+		if (infoPaginacao.paginaAtual < infoPaginacao.totalPaginas) {
+			carregarPagina(infoPaginacao.paginaAtual + 1);
+		}
+	};
 
 	if (loading)
 		return (
@@ -114,8 +178,7 @@ export default function UsuariosList() {
 					) : (
 						usuarios.map((usuario) => {
 							// Resolução segura do nome do perfil, suportando DTO plano ou aninhado do EF Core
-							const perfil =
-								usuario.perfilNome || usuario.perfil?.nome || "Padrão";
+							const perfil = usuario.perfilNome || usuario.perfil || "Padrão";
 
 							return (
 								<tr
@@ -149,6 +212,71 @@ export default function UsuariosList() {
 					)}
 				</tbody>
 			</table>
+			{/* CONTROLES DE PAGINAÇÃO */}
+			{!loading && infoPaginacao.totalPaginas > 0 && (
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "space-between",
+						alignItems: "center",
+						padding: "16px",
+						borderTop: "1px solid #e2e8f0",
+						background: "#f8fafc",
+					}}
+				>
+					<span style={{ fontSize: "14px", color: "#64748b" }}>
+						Mostrando página <strong>{infoPaginacao.paginaAtual}</strong> de{" "}
+						<strong>{infoPaginacao.totalPaginas}</strong>
+					</span>
+
+					<div style={{ display: "flex", gap: "8px" }}>
+						<button
+							onClick={handlePaginaAnterior}
+							disabled={infoPaginacao.paginaAtual === 1}
+							style={{
+								padding: "8px 16px",
+								borderRadius: "4px",
+								border: "1px solid #cbd5e1",
+								background:
+									infoPaginacao.paginaAtual === 1 ? "#f1f5f9" : "white",
+								color: infoPaginacao.paginaAtual === 1 ? "#94a3b8" : "#334155",
+								cursor:
+									infoPaginacao.paginaAtual === 1 ? "not-allowed" : "pointer",
+								fontWeight: "500",
+							}}
+						>
+							Anterior
+						</button>
+
+						<button
+							onClick={handlePaginaProxima}
+							disabled={
+								infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+							}
+							style={{
+								padding: "8px 16px",
+								borderRadius: "4px",
+								border: "1px solid #cbd5e1",
+								background:
+									infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+										? "#f1f5f9"
+										: "white",
+								color:
+									infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+										? "#94a3b8"
+										: "#334155",
+								cursor:
+									infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+										? "not-allowed"
+										: "pointer",
+								fontWeight: "500",
+							}}
+						>
+							Próxima
+						</button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

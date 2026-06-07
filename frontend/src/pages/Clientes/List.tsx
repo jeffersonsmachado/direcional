@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { isAxiosError } from "axios";
 import { api } from "../../lib/api";
 import { PatternFormat } from "react-number-format";
 
@@ -11,24 +12,87 @@ type ClienteDto = {
 	telefone: string;
 };
 
+type PagedResponse<T> = {
+	items: T[];
+	totalCount: number;
+	pageNumber: number;
+	pageSize: number;
+	totalPages: number;
+	hasPreviousPage: boolean;
+	hasNextPage: boolean;
+};
+
 export default function ClientesList() {
 	const [clientes, setClientes] = useState<ClienteDto[]>([]);
+	const [infoPaginacao, setInfoPaginacao] = useState({
+		paginaAtual: 1,
+		totalPaginas: 1,
+		totalRegistros: 0,
+	});
+
 	const [loading, setLoading] = useState(true);
 	const [erro, setErro] = useState("");
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		api
-			.get<ClienteDto[]>("/clientes")
-			.then((res) => setClientes(res.data))
+			.get<PagedResponse<ClienteDto>>(`/clientes?pageNumber=1&pageSize=3`)
+			.then((res) => {
+				setClientes(res.data.items);
+				setInfoPaginacao({
+					paginaAtual: res.data.pageNumber,
+					totalPaginas: res.data.totalPages,
+					totalRegistros: res.data.totalCount,
+				});
+			})
 			.catch((err) => {
 				console.error(err);
-				setErro(
-					"Falha ao carregar a lista de clientes. Certifique-se de estar autenticado.",
-				);
+				setErro("Falha ao carregar a lista de clientes.");
 			})
-			.finally(() => setLoading(false));
+			.finally(() => {
+				setLoading(false);
+			});
 	}, []);
+
+	const carregarPagina = async (novaPagina: number) => {
+		setLoading(true);
+		setErro("");
+
+		try {
+			const res = await api.get<PagedResponse<ClienteDto>>(
+				`/clientes?pageNumber=${novaPagina}&pageSize=3`,
+			);
+			setClientes(res.data.items);
+			setInfoPaginacao({
+				paginaAtual: res.data.pageNumber,
+				totalPaginas: res.data.totalPages,
+				totalRegistros: res.data.totalCount,
+			});
+		} catch (err: unknown) {
+			if (isAxiosError<{ message?: string }>(err)) {
+				setErro(
+					err.response?.data?.message ??
+						"Falha ao navegar para a página solicitada.",
+				);
+			} else {
+				setErro("Falha ao navegar para a página solicitada.");
+			}
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handlePaginaAnterior = () => {
+		if (infoPaginacao.paginaAtual > 1) {
+			carregarPagina(infoPaginacao.paginaAtual - 1);
+		}
+	};
+
+	const handlePaginaProxima = () => {
+		if (infoPaginacao.paginaAtual < infoPaginacao.totalPaginas) {
+			carregarPagina(infoPaginacao.paginaAtual + 1);
+		}
+	};
 
 	if (loading) return <p>Carregando clientes...</p>;
 
@@ -43,7 +107,9 @@ export default function ClientesList() {
 					marginBottom: "20px",
 				}}
 			>
-				<h2>Gerenciamento de Clientes</h2>
+				<h2>
+					Gerenciamento de Clientes ({infoPaginacao.totalRegistros} no total)
+				</h2>
 				<button
 					onClick={() => navigate("/clientes/novo")}
 					style={{
@@ -107,6 +173,7 @@ export default function ClientesList() {
 							</td>
 						</tr>
 					) : (
+						Array.isArray(clientes) &&
 						clientes.map((cliente) => (
 							<tr
 								key={cliente.id}
@@ -149,6 +216,71 @@ export default function ClientesList() {
 					)}
 				</tbody>
 			</table>
+			{/* CONTROLES DE PAGINAÇÃO */}
+			{!loading && infoPaginacao.totalPaginas > 0 && (
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "space-between",
+						alignItems: "center",
+						padding: "16px",
+						borderTop: "1px solid #e2e8f0",
+						background: "#f8fafc",
+					}}
+				>
+					<span style={{ fontSize: "14px", color: "#64748b" }}>
+						Mostrando página <strong>{infoPaginacao.paginaAtual}</strong> de{" "}
+						<strong>{infoPaginacao.totalPaginas}</strong>
+					</span>
+
+					<div style={{ display: "flex", gap: "8px" }}>
+						<button
+							onClick={handlePaginaAnterior}
+							disabled={infoPaginacao.paginaAtual === 1}
+							style={{
+								padding: "8px 16px",
+								borderRadius: "4px",
+								border: "1px solid #cbd5e1",
+								background:
+									infoPaginacao.paginaAtual === 1 ? "#f1f5f9" : "white",
+								color: infoPaginacao.paginaAtual === 1 ? "#94a3b8" : "#334155",
+								cursor:
+									infoPaginacao.paginaAtual === 1 ? "not-allowed" : "pointer",
+								fontWeight: "500",
+							}}
+						>
+							Anterior
+						</button>
+
+						<button
+							onClick={handlePaginaProxima}
+							disabled={
+								infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+							}
+							style={{
+								padding: "8px 16px",
+								borderRadius: "4px",
+								border: "1px solid #cbd5e1",
+								background:
+									infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+										? "#f1f5f9"
+										: "white",
+								color:
+									infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+										? "#94a3b8"
+										: "#334155",
+								cursor:
+									infoPaginacao.paginaAtual === infoPaginacao.totalPaginas
+										? "not-allowed"
+										: "pointer",
+								fontWeight: "500",
+							}}
+						>
+							Próxima
+						</button>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }
