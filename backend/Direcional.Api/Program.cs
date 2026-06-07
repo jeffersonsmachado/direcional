@@ -80,9 +80,9 @@ builder.Services.AddSwaggerGen(opt =>
 	});
 });
 
-builder.Services.AddAuthorizationBuilder()
-	.AddPolicy("GerenciarUsuarios", policy =>
-		policy.RequireClaim("permissao", Permissoes.UsuariosGerenciar));
+// builder.Services.AddAuthorizationBuilder()
+// 	.AddPolicy("GerenciarUsuarios", policy =>
+// 		policy.RequireClaim("permissao", Permissoes.UsuariosGerenciar));
 
 var app = builder.Build();
 
@@ -121,3 +121,4 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+

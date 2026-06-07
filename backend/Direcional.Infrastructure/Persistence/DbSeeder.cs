@@ -9,20 +9,7 @@ public static class DbSeeder
 {
 	public static async Task SeedAsync(AppDbContext db)
 	{
-		if (await db.Permissoes.AnyAsync()) return;
-
-		// ── PERMISSÕES ────────────────────────────────────────────
-		var permissoes = new[]
-		{
-			Permissao.Criar(Permissoes.ApartamentosGerenciar, "Criar e editar apartamentos"),
-			Permissao.Criar(Permissoes.ReservasGerenciar,     "Criar e cancelar reservas"),
-			Permissao.Criar(Permissoes.VendasGerenciar,       "Criar e cancelar vendas"),
-			Permissao.Criar(Permissoes.ClientesGerenciar,     "Criar e editar clientes"),
-			Permissao.Criar(Permissoes.UsuariosGerenciar,     "Criar e editar usuários"),
-			Permissao.Criar(Permissoes.RelatoriosVisualizar,  "Visualizar relatórios"),
-		};
-
-		db.Permissoes.AddRange(permissoes);
+		if (await db.Perfis.AnyAsync()) return;
 
 		// ── PERFIS ────────────────────────────────────────────────
 		var admin = Perfil.Criar("Admin");
@@ -30,25 +17,6 @@ public static class DbSeeder
 		var comum = Perfil.Criar("Comum");
 
 		db.Perfis.AddRange(admin, corretor, comum);
-		await db.SaveChangesAsync();
-
-		// Admin tem tudo
-		foreach (var p in permissoes)
-			db.PerfilPermissoes.Add(PerfilPermissao.Criar(admin.Id, p.Id));
-
-		// Corretor: opera apartamentos, reservas, vendas, clientes e relatórios
-		foreach (var p in permissoes.Where(p =>
-			p.Chave == Permissoes.ApartamentosGerenciar ||
-			p.Chave == Permissoes.ReservasGerenciar ||
-			p.Chave == Permissoes.VendasGerenciar ||
-			p.Chave == Permissoes.ClientesGerenciar ||
-			p.Chave == Permissoes.RelatoriosVisualizar))
-			db.PerfilPermissoes.Add(PerfilPermissao.Criar(corretor.Id, p.Id));
-
-		// Comum: só visualiza relatórios
-		foreach (var p in permissoes.Where(p => p.Chave == Permissoes.RelatoriosVisualizar))
-			db.PerfilPermissoes.Add(PerfilPermissao.Criar(comum.Id, p.Id));
-
 		await db.SaveChangesAsync();
 
 		// ── USUÁRIOS ──────────────────────────────────────────────

@@ -23,21 +23,21 @@ public static class PerfisEndpoints
 			return Results.Created($"/perfis/{id}", new { id });
 		}).RequireAuthorization();
 
-		app.MapPost("/perfis/{perfilId:guid}/permissoes/{permissaoId:guid}", async (Guid perfilId, Guid permissaoId, IMediator mediator) =>
-		{
-			await mediator.Send(new AssociarPermissaoCommand(perfilId, permissaoId));
-			return Results.NoContent();
-		}).RequireAuthorization();
+		// app.MapPost("/perfis/{perfilId:guid}/permissoes/{permissaoId:guid}", async (Guid perfilId, Guid permissaoId, IMediator mediator) =>
+		// {
+		// 	await mediator.Send(new AssociarPermissaoCommand(perfilId, permissaoId));
+		// 	return Results.NoContent();
+		// }).RequireAuthorization();
 
-		app.MapDelete("/perfis/{perfilId:guid}/permissoes/{permissaoId:guid}", async (Guid perfilId, Guid permissaoId, IMediator mediator) =>
-		{
-			await mediator.Send(new RemoverPermissaoCommand(perfilId, permissaoId));
-			return Results.NoContent();
-		}).RequireAuthorization();
+		// app.MapDelete("/perfis/{perfilId:guid}/permissoes/{permissaoId:guid}", async (Guid perfilId, Guid permissaoId, IMediator mediator) =>
+		// {
+		// 	await mediator.Send(new RemoverPermissaoCommand(perfilId, permissaoId));
+		// 	return Results.NoContent();
+		// }).RequireAuthorization();
 
-		app.MapGet("/permissoes", async (IMediator mediator) =>
-			Results.Ok(await mediator.Send(new ObterPermissoesQuery())))
-			.RequireAuthorization();
+		// app.MapGet("/permissoes", async (IMediator mediator) =>
+		// 	Results.Ok(await mediator.Send(new ObterPermissoesQuery())))
+		// 	.RequireAuthorization();
 
 		app.MapPut("/perfis/{id:guid}", async (Guid id, AtualizarPerfilCommand cmd, IMediator mediator) =>
 		{

@@ -13,8 +13,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 	public DbSet<Cliente> Clientes => Set<Cliente>();
 	public DbSet<Usuario> Usuarios => Set<Usuario>();
 	public DbSet<Perfil> Perfis => Set<Perfil>();
-	public DbSet<Permissao> Permissoes => Set<Permissao>();
-	public DbSet<PerfilPermissao> PerfilPermissoes => Set<PerfilPermissao>();
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -117,19 +115,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 			.HasForeignKey(u => u.PerfilId)
 			.OnDelete(DeleteBehavior.Restrict);
 
-		// PERMISSAO
-		modelBuilder.Entity<Permissao>()
-			.HasKey(p => p.Id);
-		modelBuilder.Entity<Permissao>()
-			.Property(p => p.Chave)
-			.HasMaxLength(100);
-		modelBuilder.Entity<Permissao>()
-			.Property(p => p.Descricao)
-			.HasMaxLength(300);
-		modelBuilder.Entity<Permissao>()
-			.HasIndex(p => p.Chave)
-			.IsUnique();
-
 		// PERFIL
 		modelBuilder.Entity<Perfil>()
 			.HasKey(p => p.Id);
@@ -140,18 +125,5 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 			.HasIndex(p => p.Nome)
 			.IsUnique();
 
-		// PERFIL_PERMISSAO
-		modelBuilder.Entity<PerfilPermissao>()
-			.HasKey(pp => new { pp.PerfilId, pp.PermissaoId });
-		modelBuilder.Entity<PerfilPermissao>()
-			.HasOne(pp => pp.Permissao)
-			.WithMany()
-			.HasForeignKey(pp => pp.PermissaoId)
-			.OnDelete(DeleteBehavior.Cascade);
-		modelBuilder.Entity<PerfilPermissao>()
-			.HasOne<Perfil>()
-			.WithMany(p => p.Permissoes)
-			.HasForeignKey(pp => pp.PerfilId)
-			.OnDelete(DeleteBehavior.Cascade);
 	}
 }

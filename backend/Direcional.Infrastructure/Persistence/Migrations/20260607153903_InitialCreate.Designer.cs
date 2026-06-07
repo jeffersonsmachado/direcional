@@ -4,16 +4,19 @@ using Direcional.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Direcional.Infrastructure.Migrations
+namespace Direcional.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260607153903_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -182,45 +185,6 @@ namespace Direcional.Infrastructure.Migrations
                     b.ToTable("Perfis");
                 });
 
-            modelBuilder.Entity("Direcional.Domain.Aggregates.Usuarios.PerfilPermissao", b =>
-                {
-                    b.Property<Guid>("PerfilId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PermissaoId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("PerfilId", "PermissaoId");
-
-                    b.HasIndex("PermissaoId");
-
-                    b.ToTable("PerfilPermissoes");
-                });
-
-            modelBuilder.Entity("Direcional.Domain.Aggregates.Usuarios.Permissao", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Chave")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Descricao")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("nvarchar(300)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Chave")
-                        .IsUnique();
-
-                    b.ToTable("Permissoes");
-                });
-
             modelBuilder.Entity("Direcional.Domain.Aggregates.Usuarios.Usuario", b =>
                 {
                     b.Property<Guid>("Id")
@@ -290,23 +254,6 @@ namespace Direcional.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
                 });
 
-            modelBuilder.Entity("Direcional.Domain.Aggregates.Usuarios.PerfilPermissao", b =>
-                {
-                    b.HasOne("Direcional.Domain.Aggregates.Usuarios.Perfil", null)
-                        .WithMany("Permissoes")
-                        .HasForeignKey("PerfilId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Direcional.Domain.Aggregates.Usuarios.Permissao", "Permissao")
-                        .WithMany()
-                        .HasForeignKey("PermissaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Permissao");
-                });
-
             modelBuilder.Entity("Direcional.Domain.Aggregates.Usuarios.Usuario", b =>
                 {
                     b.HasOne("Direcional.Domain.Aggregates.Usuarios.Perfil", "Perfil")
@@ -316,11 +263,6 @@ namespace Direcional.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Perfil");
-                });
-
-            modelBuilder.Entity("Direcional.Domain.Aggregates.Usuarios.Perfil", b =>
-                {
-                    b.Navigation("Permissoes");
                 });
 #pragma warning restore 612, 618
         }

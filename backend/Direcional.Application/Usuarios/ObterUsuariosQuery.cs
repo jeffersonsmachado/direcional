@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Direcional.Application.Usuarios;
 
 public record UsuarioResumoDto(Guid Id, string Nome, string Email, string Perfil);
-public record UsuarioDetalheDto(Guid Id, string Nome, string Email, string Perfil, List<string> Permissoes);
+public record UsuarioDetalheDto(Guid Id, string Nome, string Email, string Perfil);
 
 public record ObterUsuariosQuery() : IRequest<List<UsuarioResumoDto>>;
 public record ObterUsuarioPorIdQuery(Guid Id) : IRequest<UsuarioDetalheDto?>;
@@ -31,7 +31,6 @@ public class ObterUsuarioPorIdQueryHandler(AppDbContext db)
 				u.Id,
 				u.Nome,
 				u.Email,
-				u.Perfil.Nome,
-				u.Perfil.Permissoes.Select(pp => pp.Permissao.Chave).ToList()))
+				u.Perfil.Nome))
 			.FirstOrDefaultAsync(ct);
 }

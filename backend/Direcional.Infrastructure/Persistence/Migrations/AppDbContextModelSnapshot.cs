@@ -4,19 +4,16 @@ using Direcional.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Direcional.Infrastructure.Migrations
+namespace Direcional.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260605193753_ConfiguracaoCompleta")]
-    partial class ConfiguracaoCompleta
+    partial class AppDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -166,6 +163,25 @@ namespace Direcional.Infrastructure.Migrations
                     b.ToTable("Clientes");
                 });
 
+            modelBuilder.Entity("Direcional.Domain.Aggregates.Usuarios.Perfil", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nome")
+                        .IsUnique();
+
+                    b.ToTable("Perfis");
+                });
+
             modelBuilder.Entity("Direcional.Domain.Aggregates.Usuarios.Usuario", b =>
                 {
                     b.Property<Guid>("Id")
@@ -182,17 +198,20 @@ namespace Direcional.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("Perfil")
-                        .HasColumnType("int");
+                    b.Property<Guid>("PerfilId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("SenhaHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
+
+                    b.HasIndex("PerfilId");
 
                     b.ToTable("Usuarios");
                 });
@@ -230,6 +249,17 @@ namespace Direcional.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("ReservaId")
                         .OnDelete(DeleteBehavior.Restrict);
+                });
+
+            modelBuilder.Entity("Direcional.Domain.Aggregates.Usuarios.Usuario", b =>
+                {
+                    b.HasOne("Direcional.Domain.Aggregates.Usuarios.Perfil", "Perfil")
+                        .WithMany()
+                        .HasForeignKey("PerfilId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Perfil");
                 });
 #pragma warning restore 612, 618
         }

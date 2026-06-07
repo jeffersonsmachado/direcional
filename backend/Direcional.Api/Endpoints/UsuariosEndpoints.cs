@@ -20,21 +20,21 @@ public static class UsuariosEndpoints
 			}
 		}).AllowAnonymous();
 
-		app.MapPost("/usuarios", async (CriarUsuarioCommand cmd, IMediator mediator) =>
-		{
-			var id = await mediator.Send(cmd);
-			return Results.Created($"/usuarios/{id}", new { id });
-		}).RequireAuthorization("GerenciarUsuarios");
-
 		app.MapGet("/usuarios", async (IMediator mediator) =>
 			Results.Ok(await mediator.Send(new ObterUsuariosQuery())))
-			.RequireAuthorization();
+			.RequireAuthorization(policy => policy.RequireRole("Admin"));
 
 		app.MapGet("/usuarios/{id:guid}", async (Guid id, IMediator mediator) =>
 		{
 			var usuario = await mediator.Send(new ObterUsuarioPorIdQuery(id));
 			return usuario is null ? Results.NotFound() : Results.Ok(usuario);
 		}).RequireAuthorization();
+
+		app.MapPost("/usuarios", async (CriarUsuarioCommand cmd, IMediator mediator) =>
+		{
+			var id = await mediator.Send(cmd);
+			return Results.Created($"/usuarios/{id}", new { id });
+		}).RequireAuthorization(policy => policy.RequireRole("Admin"));
 
 		app.MapPut("/usuarios/{id:guid}", async (Guid id, AtualizarUsuarioCommand cmd, IMediator mediator) =>
 		{
@@ -48,7 +48,7 @@ public static class UsuariosEndpoints
 			{
 				return Results.Problem(ex.Message, statusCode: 400);
 			}
-		}).RequireAuthorization("GerenciarUsuarios");
+		}).RequireAuthorization(policy => policy.RequireRole("Admin"));
 
 		app.MapPatch("/usuarios/{id:guid}/senha", async (Guid id, AlterarSenhaRequest req, IMediator mediator) =>
 		{
@@ -65,7 +65,7 @@ public static class UsuariosEndpoints
 			{
 				return Results.NotFound();
 			}
-		}).RequireAuthorization();
+		}).RequireAuthorization(policy => policy.RequireRole("Admin", "Corretor"));
 
 		app.MapDelete("/usuarios/{id:guid}", async (Guid id, IMediator mediator) =>
 		{
@@ -78,7 +78,7 @@ public static class UsuariosEndpoints
 			{
 				return Results.NotFound();
 			}
-		}).RequireAuthorization("GerenciarUsuarios");
+		}).RequireAuthorization(policy => policy.RequireRole("Admin"));
 
 		app.MapPatch("/usuarios/{id:guid}/perfil", async (Guid id, TrocarPerfilRequest req, IMediator mediator) =>
 		{
@@ -91,6 +91,6 @@ public static class UsuariosEndpoints
 			{
 				return Results.Problem(ex.Message, statusCode: 400);
 			}
-		}).RequireAuthorization("GerenciarUsuarios");
+		}).RequireAuthorization(policy => policy.RequireRole("Admin"));
 	}
 }

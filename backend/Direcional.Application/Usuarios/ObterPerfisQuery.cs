@@ -13,7 +13,6 @@ public class ObterPerfisQueryHandler(AppDbContext db)
 {
 	public Task<List<Perfil>> Handle(ObterPerfisQuery query, CancellationToken ct)
 		=> db.Perfis.AsNoTracking()
-			.Include(p => p.Permissoes).ThenInclude(pp => pp.Permissao)
 			.ToListAsync(ct);
 }
 
@@ -22,6 +21,5 @@ public class ObterPerfilPorIdQueryHandler(AppDbContext db)
 {
 	public Task<Perfil?> Handle(ObterPerfilPorIdQuery query, CancellationToken ct)
 		=> db.Perfis.AsNoTracking()
-			.Include(p => p.Permissoes).ThenInclude(pp => pp.Permissao)
 			.FirstOrDefaultAsync(p => p.Id == query.Id, ct);
 }

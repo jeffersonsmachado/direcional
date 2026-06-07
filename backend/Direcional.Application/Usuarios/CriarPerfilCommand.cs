@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Direcional.Application.Usuarios;
 
-public record CriarPerfilCommand(string Nome, List<Guid> PermissaoIds) : IRequest<Guid>;
+public record CriarPerfilCommand(string Nome) : IRequest<Guid>;
 
 public class CriarPerfilCommandHandler(AppDbContext db)
 	: IRequestHandler<CriarPerfilCommand, Guid>
@@ -15,10 +15,6 @@ public class CriarPerfilCommandHandler(AppDbContext db)
 		db.Perfis.Add(perfil);
 		await db.SaveChangesAsync(ct);
 
-		foreach (var permissaoId in cmd.PermissaoIds)
-			db.PerfilPermissoes.Add(PerfilPermissao.Criar(perfil.Id, permissaoId));
-
-		await db.SaveChangesAsync(ct);
 		return perfil.Id;
 	}
 }

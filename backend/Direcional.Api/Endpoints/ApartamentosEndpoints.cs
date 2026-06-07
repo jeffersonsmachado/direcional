@@ -7,12 +7,6 @@ public static class ApartamentosEndpoints
 {
 	public static void MapApartamentosEndpoints(this WebApplication app)
 	{
-		app.MapPost("/apartamentos", async (CriarApartamentoCommand cmd, IMediator mediator) =>
-		{
-			var id = await mediator.Send(cmd);
-			return Results.Created($"/apartamentos/{id}", new { id });
-		}).RequireAuthorization();
-
 		app.MapGet("/apartamentos", async (IMediator mediator) =>
 			Results.Ok(await mediator.Send(new ObterApartamentosQuery())))
 			.RequireAuthorization();
@@ -22,6 +16,12 @@ public static class ApartamentosEndpoints
 			var apartamento = await mediator.Send(new ObterApartamentoPorIdQuery(id));
 			return apartamento is null ? Results.NotFound() : Results.Ok(apartamento);
 		}).RequireAuthorization();
+
+		app.MapPost("/apartamentos", async (CriarApartamentoCommand cmd, IMediator mediator) =>
+		{
+			var id = await mediator.Send(cmd);
+			return Results.Created($"/apartamentos/{id}", new { id });
+		}).RequireAuthorization(policy => policy.RequireRole("Admin", "Corretor"));
 
 		app.MapPut("/apartamentos/{id:guid}", async (Guid id, AtualizarApartamentoCommand cmd, IMediator mediator) =>
 		{
@@ -35,7 +35,7 @@ public static class ApartamentosEndpoints
 			{
 				return Results.Problem(ex.Message, statusCode: 400);
 			}
-		}).RequireAuthorization();
+		}).RequireAuthorization(policy => policy.RequireRole("Admin", "Corretor"));
 
 		app.MapPatch("/apartamentos/{id:guid}/valor", async (Guid id, AtualizarValorRequest req, IMediator mediator) =>
 		{
@@ -48,7 +48,7 @@ public static class ApartamentosEndpoints
 			{
 				return Results.Problem(ex.Message, statusCode: 400);
 			}
-		}).RequireAuthorization();
+		}).RequireAuthorization(policy => policy.RequireRole("Admin", "Corretor"));
 
 		app.MapDelete("/apartamentos/{id:guid}", async (Guid id, IMediator mediator) =>
 		{
@@ -61,6 +61,6 @@ public static class ApartamentosEndpoints
 			{
 				return Results.Problem(ex.Message, statusCode: 400);
 			}
-		}).RequireAuthorization();
+		}).RequireAuthorization(policy => policy.RequireRole("Admin", "Corretor"));
 	}
 }

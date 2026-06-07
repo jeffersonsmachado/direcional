@@ -4,7 +4,6 @@ public class Perfil
 {
 	public Guid Id { get; private set; }
 	public string Nome { get; private set; } = string.Empty;
-	public ICollection<PerfilPermissao> Permissoes { get; private set; } = [];
 
 	private Perfil() { }
 

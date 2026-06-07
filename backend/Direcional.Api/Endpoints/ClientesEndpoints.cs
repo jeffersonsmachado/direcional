@@ -7,23 +7,24 @@ public static class ClientesEndpoints
 {
 	public static void MapClientesEndpoints(this WebApplication app)
 	{
-		app.MapPost("/clientes", async (CriarClienteCommand cmd, IMediator mediator) =>
+		var group = app.MapGroup("/clientes").RequireAuthorization(policy => policy.RequireRole("Admin", "Corretor"));
+
+		group.MapPost("/", async (CriarClienteCommand cmd, IMediator mediator) =>
 		{
 			var id = await mediator.Send(cmd);
 			return Results.Created($"/clientes/{id}", new { id });
-		}).RequireAuthorization();
+		});
 
-		app.MapGet("/clientes", async (IMediator mediator) =>
-			Results.Ok(await mediator.Send(new ObterClientesQuery())))
-			.RequireAuthorization();
+		group.MapGet("/", async (IMediator mediator) =>
+			Results.Ok(await mediator.Send(new ObterClientesQuery())));
 
-		app.MapGet("/clientes/{id:guid}", async (Guid id, IMediator mediator) =>
+		group.MapGet("/{id:guid}", async (Guid id, IMediator mediator) =>
 		{
 			var cliente = await mediator.Send(new ObterClientePorIdQuery(id));
 			return cliente is null ? Results.NotFound() : Results.Ok(cliente);
-		}).RequireAuthorization();
+		});
 
-		app.MapPut("/clientes/{id:guid}", async (Guid id, AtualizarClienteCommand cmd, IMediator mediator) =>
+		group.MapPut("/{id:guid}", async (Guid id, AtualizarClienteCommand cmd, IMediator mediator) =>
 		{
 			if (id != cmd.Id) return Results.BadRequest("ID da rota não corresponde ao corpo.");
 			try
@@ -35,9 +36,9 @@ public static class ClientesEndpoints
 			{
 				return Results.Problem(ex.Message, statusCode: 400);
 			}
-		}).RequireAuthorization();
+		});
 
-		app.MapDelete("/clientes/{id:guid}", async (Guid id, IMediator mediator) =>
+		group.MapDelete("/{id:guid}", async (Guid id, IMediator mediator) =>
 		{
 			try
 			{
@@ -48,6 +49,6 @@ public static class ClientesEndpoints
 			{
 				return Results.Problem(ex.Message, statusCode: 400);
 			}
-		}).RequireAuthorization();
+		});
 	}
 }
