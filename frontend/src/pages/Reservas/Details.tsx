@@ -34,13 +34,11 @@ export default function ReservaDetalhes() {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 
-	// Estados primitivos de infraestrutura de dados - Estritos e sem repetições
 	const [reserva, setReserva] = useState<ReservaDetalheDto | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [processando, setProcessando] = useState(false);
 	const [erro, setErro] = useState("");
 
-	// ÚNICO EFEITO: Carrega os dados da query uma única vez ao abrir a página
 	useEffect(() => {
 		if (!id) return;
 
@@ -56,7 +54,6 @@ export default function ReservaDetalhes() {
 			.finally(() => setLoading(false));
 	}, [id]);
 
-	// Transação 1: Cancelar / Liberar Reserva (CancelarReservaCommand)
 	const handleCancelarReserva = async () => {
 		if (
 			!window.confirm(
@@ -69,7 +66,7 @@ export default function ReservaDetalhes() {
 		setProcessando(true);
 
 		try {
-			await api.post(`/reservas/${id}/cancelar`);
+			await api.patch(`/reservas/${id}/cancelar`);
 			if (reserva) {
 				setReserva({
 					...reserva,
@@ -78,9 +75,9 @@ export default function ReservaDetalhes() {
 			}
 			alert("Reserva cancelada com sucesso!");
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ?? "Falha ao processar o cancelamento.",
+					err.response?.data?.detail ?? "Falha ao processar o cancelamento.",
 				);
 			} else {
 				setErro("Falha ao processar o cancelamento.");
@@ -89,59 +86,6 @@ export default function ReservaDetalhes() {
 			setProcessando(false);
 		}
 	};
-
-	// Transação 2: Concluir Compra / Efetivar Venda (CriarVendaCommand)
-	// const handleConcluirCompra = async () => {
-	// 	if (!reserva) return;
-
-	// 	// Sugere o valor de tabela do apartamento, permitindo ajuste final caso haja desconto acordado
-	// 	const valorConfirmado = window.prompt(
-	// 		`Confirmar fechamento de contrato para ${reserva.clienteNome}.\n\nDigite o valor final da venda (R$):`,
-	// 		reserva.valorApartamento.toString(),
-	// 	);
-
-	// 	if (valorConfirmado === null) return; // Operador cancelou o prompt
-
-	// 	const valorNumerico = parseFloat(valorConfirmado);
-	// 	if (isNaN(valorNumerico) || valorNumerico <= 0) {
-	// 		alert("Por favor, informe um valor de venda válido.");
-	// 		return;
-	// 	}
-
-	// 	setErro("");
-	// 	setProcessando(true);
-
-	// 	try {
-	// 		// Dispara o CriarVendaCommand enviando os dados travados do cliente e imóvel da reserva
-	// 		await api.post("/vendas", {
-	// 			apartamentoId: reserva.apartamento?.id,
-	// 			clienteId: reserva.cliente?.id,
-	// 			valorVenda: valorNumerico,
-	// 			reservaId: reserva.id,
-	// 		});
-
-	// 		// Altera o status local de forma atômica para refletir a nova situação jurídica
-	// 		setReserva({
-	// 			...reserva,
-	// 			status: typeof reserva.status === "number" ? 1 : "Efetivada",
-	// 		});
-
-	// 		alert(
-	// 			"Venda concluída com sucesso! O contrato foi gerado e a unidade foi faturada.",
-	// 		);
-	// 		navigate("/vendas"); // Redireciona para exibir o registro na listagem de vendas
-	// 	} catch (err: unknown) {
-	// 		if (isAxiosError<{ message?: string }>(err)) {
-	// 			setErro(
-	// 				err.response?.data?.message ?? "Falha ao processar o cancelamento.",
-	// 			);
-	// 		} else {
-	// 			setErro("Falha ao processar o cancelamento.");
-	// 		}
-	// 	} finally {
-	// 		setProcessando(false);
-	// 	}
-	// };
 
 	if (loading)
 		return (
@@ -163,7 +107,6 @@ export default function ReservaDetalhes() {
 			</p>
 		);
 
-	// 🚀 ESTADOS DERIVADOS (Calculados puramente em tempo de renderização, sem usar useEffect!)
 	const obterLabelStatus = (status: string | number) => {
 		if (status === 0 || status === "Ativa" || status === "Ativo")
 			return "Ativa";
@@ -389,21 +332,6 @@ export default function ReservaDetalhes() {
 						>
 							Cancelar Reserva
 						</button>
-						{/* <button
-							onClick={handleConcluirCompra}
-							disabled={processando}
-							style={{
-								padding: "10px 20px",
-								background: "#22c55e",
-								color: "white",
-								border: "none",
-								borderRadius: "4px",
-								cursor: processando ? "not-allowed" : "pointer",
-								fontWeight: "bold",
-							}}
-						>
-							{processando ? "Processando..." : "Concluir Compra ✓"}
-						</button> */}
 						<button
 							onClick={() =>
 								navigate(

@@ -58,9 +58,9 @@ export default function UsuariosCreate() {
 			// Volta para a lista ao finalizar
 			navigate("/usuarios");
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data?.detail ??
 						"Erro ao cadastrar usuário. O e-mail já pode estar em uso.",
 				);
 			} else {
@@ -114,7 +114,7 @@ export default function UsuariosCreate() {
 						value={nome}
 						onChange={(e) => setNome(e.target.value)}
 						required
-						placeholder="Nome do Cliente"
+						placeholder="Nome do Usuário"
 						style={{
 							padding: "10px",
 							borderRadius: "4px",

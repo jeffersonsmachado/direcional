@@ -33,9 +33,9 @@ export default function ClientesCreate() {
 			// Retorna para a listagem atualizada após o sucesso
 			navigate("/clientes");
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data.detail ??
 						"Erro ao salvar cliente. Verifique os dados informados.",
 				);
 			} else {
@@ -49,7 +49,6 @@ export default function ClientesCreate() {
 	const handleTelefone = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const maskedValue = e.target.value;
 		const unmaskedValue = maskedValue.replace(/\D/g, "");
-		console.log(unmaskedValue);
 		setTelefoneMasked(maskedValue);
 		setTelefone(unmaskedValue);
 	};
@@ -57,7 +56,6 @@ export default function ClientesCreate() {
 	const handleCpf = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const maskedValue = e.target.value;
 		const unmaskedValue = maskedValue.replace(/\D/g, "");
-		console.log(unmaskedValue);
 		setCpfMasked(maskedValue);
 		setCpf(unmaskedValue);
 	};

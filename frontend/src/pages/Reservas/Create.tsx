@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { api } from "../../lib/api";
 import "../../App.css";
+import ListaClientesSeletor from "../../components/BuscaClientes";
 
-type ClienteDto = { id: string; nome: string; cpf: string };
 type ApartamentoDto = {
 	id: string;
 	numero: string;
@@ -20,7 +20,6 @@ export default function ReservasCreate() {
 	const [searchParams] = useSearchParams();
 	const apartamentoId = searchParams.get("apartamentoId") || "";
 
-	const [clientes, setClientes] = useState<ClienteDto[]>([]);
 	const [apartamento, setApartamento] = useState<ApartamentoDto | null>(null);
 	const [clienteId, setClienteId] = useState("");
 	const [observacoes, setObservacoes] = useState("");
@@ -34,14 +33,11 @@ export default function ReservasCreate() {
 
 		let cancelled = false;
 
-		Promise.all([
-			api.get<ClienteDto[]>("/clientes"),
-			api.get<ApartamentoDto>(`/apartamentos/${apartamentoId}`),
-		])
-			.then(([resClientes, resApartamento]) => {
+		api
+			.get<ApartamentoDto>(`/apartamentos/${apartamentoId}`)
+			.then((res) => {
 				if (cancelled) return;
-				setClientes(resClientes.data);
-				setApartamento(resApartamento.data);
+				setApartamento(res.data);
 			})
 			.catch((err: unknown) => {
 				if (cancelled) return;
@@ -71,19 +67,17 @@ export default function ReservasCreate() {
 		setSalvando(true);
 
 		try {
-			// Dispara o CriarReservaCommand para a Minimal API .NET
 			await api.post("/reservas", {
 				apartamentoId,
 				clienteId,
 				observacoes,
 			});
 
-			// Redireciona para o painel de reservas ativas
 			navigate("/reservas");
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data?.detail ??
 						"Ocorreu um erro ao processar a reserva no servidor.",
 				);
 			} else {
@@ -199,7 +193,7 @@ export default function ReservasCreate() {
 						<label style={{ fontWeight: "500", color: "#334155" }}>
 							Cliente Interessado *
 						</label>
-						<select
+						{/* <select
 							value={clienteId}
 							onChange={(e) => setClienteId(e.target.value)}
 							required
@@ -215,7 +209,10 @@ export default function ReservasCreate() {
 									{c.nome} (CPF: {c.cpf})
 								</option>
 							))}
-						</select>
+						</select> */}
+						<ListaClientesSeletor
+							onClienteSelecionado={(e) => setClienteId(e)}
+						/>
 					</div>
 
 					{/* Campo de Observações textuais */}

@@ -43,7 +43,7 @@ export default function ApartamentosList() {
 	useEffect(() => {
 		api
 			.get<PagedResponse<ApartamentoDto>>(
-				`/apartamentos?pageNumber=1&pageSize=3`,
+				`/apartamentos?pageNumber=1&pageSize=10`,
 			)
 			.then((res) => {
 				setApartamentos(res.data.items);
@@ -68,7 +68,7 @@ export default function ApartamentosList() {
 
 		try {
 			const res = await api.get<PagedResponse<ApartamentoDto>>(
-				`/apartamentos?pageNumber=${novaPagina}&pageSize=3`,
+				`/apartamentos?pageNumber=${novaPagina}&pageSize=10`,
 			);
 
 			setApartamentos(res.data.items);
@@ -78,9 +78,9 @@ export default function ApartamentosList() {
 				totalRegistros: res.data.totalCount,
 			});
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data?.detail ??
 						"Falha ao navegar para a página solicitada.",
 				);
 			} else {

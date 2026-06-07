@@ -82,13 +82,13 @@ export default function VendaDetalhes() {
 			}
 			alert("Contrato rescindido e apartamento liberado com sucesso!");
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
-						"Erro ao processar o distrato no servidor.",
+					err.response?.data?.detail ??
+						"Erro ao processar a conclusão da venda no servidor.",
 				);
 			} else {
-				setErro("Erro ao processar o distrato no servidor.");
+				setErro("Erro ao processar a conclusão da venda no servidor.");
 			}
 		} finally {
 			setProcessando(false);
@@ -116,9 +116,9 @@ export default function VendaDetalhes() {
 			}
 			alert("Apartamento vendido com sucesso!");
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data?.detail ??
 						"Erro ao processar a conclusão da venda no servidor.",
 				);
 			} else {

@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { isAxiosError } from "axios";
 import { api } from "../../lib/api";
 import { NumericFormat } from "react-number-format";
+import ListaClientesSeletor from "../../components/BuscaClientes";
+import ListaApartamentosSeletor from "../../components/BuscaApartamentos";
 
 type ClienteDto = { id: string; nome: string; cpf: string };
 type ApartamentoDto = {
@@ -19,62 +21,50 @@ export default function VendasCreate() {
 	const apartamentoIdUrl = searchParams.get("apartamentoId") || "";
 	const clienteIdUrl = searchParams.get("clienteId") || "";
 
-	const [clientes, setClientes] = useState<ClienteDto[]>([]);
-	const [apartamentos, setApartamentos] = useState<ApartamentoDto[]>([]);
-	// const [cliente, setCliente] = useState<ClienteDto>();
+	const [cliente, setCliente] = useState<ClienteDto>();
+	const [apartamento, setApartamento] = useState<ApartamentoDto>();
 	const [apartamentoId, setApartamentoId] = useState(apartamentoIdUrl);
 	const [clienteId, setClienteId] = useState(clienteIdUrl);
 
 	const [valorVenda, setValorVenda] = useState("");
 
-	const [loading, setLoading] = useState(true);
 	const [salvando, setSalvando] = useState(false);
 	const [erro, setErro] = useState("");
 
 	useEffect(() => {
-		Promise.all([
-			api.get<ClienteDto[]>("/clientes"),
-			api.get<ApartamentoDto[]>("/apartamentos"),
-		])
-			.then(([resClientes, resApartamentos]) => {
-				setClientes(resClientes.data);
+		if (clienteIdUrl && apartamentoIdUrl) {
+			Promise.all([
+				api.get<ClienteDto>(`/clientes/${clienteIdUrl}`),
+				api.get<ApartamentoDto>(`/apartamentos/${apartamentoIdUrl}`),
+			])
+				.then(([resCliente, resApartamentos]) => {
+					setCliente(resCliente.data);
 
-				setApartamentos(resApartamentos.data);
+					setApartamento(resApartamentos.data);
 
-				if (apartamentoIdUrl) {
-					const ap = resApartamentos.data.find(
-						(a) => a.id === apartamentoIdUrl,
-					);
-					if (ap) {
-						setValorVenda(ap.valor.toString());
+					setValorVenda(resApartamentos.data.valor.toString());
+					setClienteId(resCliente.data.id);
+				})
+				.catch((err) => {
+					console.error(err);
+					setErro("Erro ao carregar dados necessários para a venda.");
+				});
+		} else if (apartamentoId) {
+			api
+				.get<ApartamentoDto>(`/apartamentos/${apartamentoId}`)
+				.then((res) => {
+					setApartamento(res.data);
+					setValorVenda(res.data.valor.toString());
+				})
+				.catch((err: unknown) => {
+					if (isAxiosError(err)) {
+						setErro(err.response?.data?.message ?? "Erro ao carregar dados.");
+					} else {
+						setErro("Erro ao carregar dados.");
 					}
-				}
-			})
-			.catch((err) => {
-				console.error(err);
-				setErro("Erro ao carregar dados necessários para a venda.");
-			})
-			.finally(() => {
-				setLoading(false);
-			});
-	}, [apartamentoIdUrl]);
-
-	const apartamentoSelecionado =
-		apartamentos.find((a) => a.id === apartamentoId) || null;
-
-	const handleSelecionarApartamento = (
-		e: React.ChangeEvent<HTMLSelectElement>,
-	) => {
-		const idSelecionado = e.target.value;
-		setApartamentoId(idSelecionado);
-
-		const ap = apartamentos.find((a) => a.id === idSelecionado);
-		if (ap) {
-			setValorVenda(ap.valor.toString());
-		} else {
-			setValorVenda("");
+				});
 		}
-	};
+	}, [clienteIdUrl, apartamentoIdUrl, apartamentoId]);
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -88,16 +78,16 @@ export default function VendasCreate() {
 
 		try {
 			await api.post("/vendas", {
-				apartamentoId,
-				clienteId,
+				apartamentoId: apartamentoId,
+				clienteId: clienteId,
 				valorVenda: parseFloat(valorVenda),
 			});
 
 			navigate("/vendas");
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data?.detail ??
 						"Falha ao registrar venda. Verifique se a unidade não foi vendida/reservada.",
 				);
 			} else {
@@ -110,13 +100,6 @@ export default function VendasCreate() {
 		}
 	};
 
-	if (loading)
-		return (
-			<p style={{ textAlign: "center", padding: "20px" }}>
-				Preparando módulo de faturamento comercial...
-			</p>
-		);
-
 	return (
 		<div
 			style={{
@@ -127,7 +110,7 @@ export default function VendasCreate() {
 				gap: "20px",
 			}}
 		>
-			{apartamentoSelecionado && (
+			{apartamento && (
 				<div
 					style={{
 						background: "#f8fafc",
@@ -149,17 +132,17 @@ export default function VendasCreate() {
 						}}
 					>
 						<div>
-							<strong>Bloco:</strong> {apartamentoSelecionado.bloco}
+							<strong>Bloco:</strong> {apartamento.bloco}
 						</div>
 						<div>
-							<strong>Apartamento:</strong> {apartamentoSelecionado.numero}
+							<strong>Apartamento:</strong> {apartamento.numero}
 						</div>
 						<div>
-							<strong>Andar:</strong> {apartamentoSelecionado.andar}º
+							<strong>Andar:</strong> {apartamento.andar}º
 						</div>
 						<div style={{ gridColumn: "span 3" }}>
 							<strong>Valor de Tabela original:</strong>{" "}
-							{apartamentoSelecionado.valor.toLocaleString("pt-BR", {
+							{apartamento.valor.toLocaleString("pt-BR", {
 								style: "currency",
 								currency: "BRL",
 							})}
@@ -207,41 +190,62 @@ export default function VendasCreate() {
 							<label style={{ fontWeight: "500" }}>
 								Selecionar Unidade Residencial *
 							</label>
-							<select
-								value={apartamentoId}
-								onChange={handleSelecionarApartamento}
-								required
-								style={{ padding: "10px", borderRadius: "4px" }}
-							>
-								<option value="">-- Escolha o Apartamento --</option>
-								{apartamentos.map((a) => (
-									<option key={a.id} value={a.id}>
-										Bloco {a.bloco} - Ap {a.numero} (Tabela: R$ {a.valor})
-									</option>
-								))}
-							</select>
+							<ListaApartamentosSeletor
+								onApartamentoSelecionado={(e) => setApartamentoId(e)}
+							/>
 						</div>
 					)}
 
-					<div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-						<label style={{ fontWeight: "500" }}>
-							Selecione o Cliente Comprador *
-						</label>
-						<select
-							value={clienteId}
-							onChange={(e) => setClienteId(e.target.value)}
-							required
-							style={{ padding: "10px", borderRadius: "4px" }}
-							disabled={clienteId != ""}
+					{!clienteIdUrl && (
+						<div
+							style={{ display: "flex", flexDirection: "column", gap: "5px" }}
 						>
-							<option value="">-- Escolha o Cliente --</option>
-							{clientes.map((c) => (
-								<option key={c.id} value={c.id}>
-									{c.nome} (CPF: {c.cpf})
-								</option>
-							))}
-						</select>
-					</div>
+							<label style={{ fontWeight: "500" }}>
+								Selecione o Cliente Comprador *
+							</label>
+							<ListaClientesSeletor
+								onClienteSelecionado={(e) => setClienteId(e)}
+							/>
+						</div>
+					)}
+
+					{/* Painel do Cliente */}
+					{clienteIdUrl && (
+						<div
+							style={{
+								background: "white",
+								padding: "24px",
+								borderRadius: "8px",
+								boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+							}}
+						>
+							<h3
+								style={{
+									color: "#1e293b",
+									borderBottom: "2px solid #e2e8f0",
+									paddingBottom: "10px",
+									marginTop: 0,
+								}}
+							>
+								Cliente Comprador
+							</h3>
+							<div
+								style={{
+									marginTop: "15px",
+									display: "flex",
+									flexDirection: "column",
+									gap: "10px",
+								}}
+							>
+								<p style={{ margin: 0 }}>
+									<strong>Nome:</strong> {cliente?.nome}
+								</p>
+								<p style={{ margin: 0 }}>
+									<strong>CPF:</strong> {cliente?.cpf}
+								</p>
+							</div>
+						</div>
+					)}
 
 					<div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
 						<label style={{ fontWeight: "500" }}>

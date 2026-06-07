@@ -42,9 +42,9 @@ export default function ApartamentosCreate() {
 			// Retorna para a listagem principal de apartamentos
 			navigate("/apartamentos");
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data?.detail ??
 						"Erro ao cadastrar o apartamento. Verifique os dados.",
 				);
 			} else {

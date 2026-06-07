@@ -69,9 +69,9 @@ export default function UsuariosList() {
 				totalRegistros: res.data.totalCount,
 			});
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data?.detail ??
 						"Falha ao navegar para a página solicitada.",
 				);
 			} else {

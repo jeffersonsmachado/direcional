@@ -18,6 +18,15 @@ public static class ApartamentosEndpoints
 			return Results.Ok(result);
 		});
 
+		group.MapGet("/disponiveis", async (IMediator mediator, int? pageNumber, int? pageSize) =>
+		{
+			var query = new ObterApartamentosDisponiveisQuery(pageNumber ?? 1, pageSize ?? 10);
+
+			var result = await mediator.Send(query);
+
+			return Results.Ok(result);
+		});
+
 		app.MapGet("/apartamentos/{id:guid}", async (Guid id, IMediator mediator) =>
 		{
 			var apartamento = await mediator.Send(new ObterApartamentoPorIdQuery(id));

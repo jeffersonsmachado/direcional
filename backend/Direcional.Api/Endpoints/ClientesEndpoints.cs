@@ -26,8 +26,15 @@ public static class ClientesEndpoints
 
 		group.MapPost("/", async (CriarClienteCommand cmd, IMediator mediator) =>
 		{
-			var id = await mediator.Send(cmd);
-			return Results.Created($"/clientes/{id}", new { id });
+			try
+			{
+				var id = await mediator.Send(cmd);
+				return Results.Created($"/clientes/{id}", new { id });
+			}
+			catch (InvalidOperationException ex)
+			{
+				return Results.Problem(ex.Message, statusCode: 400);
+			}
 		});
 
 		group.MapPut("/{id:guid}", async (Guid id, AtualizarClienteCommand cmd, IMediator mediator) =>

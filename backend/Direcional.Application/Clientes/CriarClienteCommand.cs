@@ -19,6 +19,10 @@ public class CriarClienteCommandHandler(AppDbContext db)
 		var cpfEmUso = await db.Clientes.AnyAsync(c => c.CPF == cmd.CPF, ct);
 		if (cpfEmUso)
 			throw new InvalidOperationException("CPF já cadastrado.");
+		var emailEmUso = await db.Clientes.AnyAsync(c => c.Email == cmd.Email, ct);
+		if (emailEmUso)
+			throw new InvalidOperationException("Email já cadastrado.");
+
 		var cliente = Cliente.Criar(cmd.Nome, cmd.CPF, cmd.Email, cmd.Telefone);
 		db.Clientes.Add(cliente);
 		await db.SaveChangesAsync(ct);

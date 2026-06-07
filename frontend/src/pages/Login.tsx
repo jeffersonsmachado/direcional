@@ -30,10 +30,10 @@ export default function Login() {
 
 			navigate("/apartamentos");
 		} catch (err: unknown) {
-			if (axios.isAxiosError(err)) {
-				setErro(err.response?.data?.message || "Falha ao realizar login.");
+			if (axios.isAxiosError<{ message?: string }>(err)) {
+				setErro(err.response?.data.message ?? "Falha ao realizar login.");
 			} else {
-				setErro("Ocorreu um erro inesperado.");
+				setErro("Falha ao realizar login.");
 			}
 		}
 	};

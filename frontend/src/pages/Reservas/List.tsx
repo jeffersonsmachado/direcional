@@ -36,7 +36,7 @@ export default function ReservasList() {
 
 	useEffect(() => {
 		api
-			.get<PagedResponse<ReservaDto>>(`/reservas?pageNumber=1&pageSize=3`)
+			.get<PagedResponse<ReservaDto>>(`/reservas?pageNumber=1&pageSize=10`)
 			.then((res) => {
 				setReservas(res.data.items);
 				setInfoPaginacao({
@@ -60,7 +60,7 @@ export default function ReservasList() {
 
 		try {
 			const res = await api.get<PagedResponse<ReservaDto>>(
-				`/reservas?pageNumber=${novaPagina}&pageSize=3`,
+				`/reservas?pageNumber=${novaPagina}&pageSize=10`,
 			);
 
 			setReservas(res.data.items);
@@ -70,9 +70,9 @@ export default function ReservasList() {
 				totalRegistros: res.data.totalCount,
 			});
 		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
+			if (isAxiosError<{ detail?: string }>(err)) {
 				setErro(
-					err.response?.data?.message ??
+					err.response?.data?.detail ??
 						"Falha ao navegar para a página solicitada.",
 				);
 			} else {
