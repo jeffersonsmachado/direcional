@@ -1,4 +1,4 @@
-using Direcional.Domain.Aggregates.Apartamentos;
+using Direcional.Application.Common;
 using Direcional.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,17 +14,37 @@ public record ApartamentoDto(
 	decimal Valor,
 	string Status);
 
-public record ObterApartamentosQuery() : IRequest<List<ApartamentoDto>>;
+public record ObterApartamentosQuery(int PageNumber = 1, int PageSize = 10) : IRequest<PagedResultDto<ApartamentoDto>>;
 public record ObterApartamentoPorIdQuery(Guid Id) : IRequest<ApartamentoDto?>;
 
 public class ObterApartamentosQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterApartamentosQuery, List<ApartamentoDto>>
+	: IRequestHandler<ObterApartamentosQuery, PagedResultDto<ApartamentoDto>>
 {
-	public Task<List<ApartamentoDto>> Handle(ObterApartamentosQuery query, CancellationToken ct)
-		=> db.Apartamentos
-			.AsNoTracking()
-			.Select(a => new ApartamentoDto(a.Id, a.Numero, a.Bloco, a.Andar, a.Area, a.Valor, a.Status.ToString()))
+	public async Task<PagedResultDto<ApartamentoDto>> Handle(ObterApartamentosQuery query, CancellationToken ct)
+	{
+		int pageNumber = query.PageNumber < 1 ? 1 : query.PageNumber;
+		int pageSize = query.PageSize < 1 ? 10 : query.PageSize;
+
+		var queryBase = db.Apartamentos.AsNoTracking();
+		var totalCount = await queryBase.CountAsync(ct);
+
+		var items = await queryBase
+			.OrderBy(a => a.Bloco)
+			.ThenBy(a => a.Numero)
+			.Skip((pageNumber - 1) * pageSize)
+			.Take(pageSize)
+			.Select(a => new ApartamentoDto(
+				a.Id,
+				a.Numero,
+				a.Bloco,
+				a.Andar,
+				a.Area,
+				a.Valor,
+				a.Status.ToString()))
 			.ToListAsync(ct);
+
+		return new PagedResultDto<ApartamentoDto>(items, totalCount, pageNumber, pageSize);
+	}
 }
 
 public class ObterApartamentoPorIdQueryHandler(AppDbContext db)

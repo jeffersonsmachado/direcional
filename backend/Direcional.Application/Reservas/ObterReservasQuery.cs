@@ -1,3 +1,4 @@
+using Direcional.Application.Common;
 using Direcional.Infrastructure.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -35,15 +36,25 @@ public record ReservaDetalheDto(
 	ReservaClienteDto? Cliente,
 	ReservaApartamentoDto? Apartamento);
 
-public record ObterReservasQuery() : IRequest<List<ReservaDto>>;
+public record ObterReservasQuery(int PageNumber = 1, int PageSize = 10) : IRequest<PagedResultDto<ReservaDto>>;
 public record ObterReservaPorIdQuery(Guid Id) : IRequest<ReservaDetalheDto?>;
 
 public class ObterReservasQueryHandler(AppDbContext db)
-	: IRequestHandler<ObterReservasQuery, List<ReservaDto>>
+	: IRequestHandler<ObterReservasQuery, PagedResultDto<ReservaDto>>
 {
-	public Task<List<ReservaDto>> Handle(ObterReservasQuery query, CancellationToken ct)
-		=> db.Reservas
-			.AsNoTracking()
+	public async Task<PagedResultDto<ReservaDto>> Handle(ObterReservasQuery query, CancellationToken ct)
+	{
+		int pageNumber = query.PageNumber < 1 ? 1 : query.PageNumber;
+		int pageSize = query.PageSize < 1 ? 10 : query.PageSize;
+
+		var queryBase = db.Reservas.AsNoTracking();
+		var totalCount = await queryBase.CountAsync(ct);
+
+		var items = await queryBase
+			.OrderBy(a => a.DataReserva)
+			.ThenBy(a => a.Status)
+			.Skip((pageNumber - 1) * pageSize)
+			.Take(pageSize)
 			.Join(db.Clientes, r => r.ClienteId, c => c.Id, (r, c) => new { r, c })
 			.Join(db.Apartamentos, rc => rc.r.ApartamentoId, a => a.Id, (rc, a) => new { rc.r, rc.c, a })
 			.Select(x => new ReservaDto(
@@ -59,6 +70,8 @@ public class ObterReservasQueryHandler(AppDbContext db)
 				x.a.Bloco
 			))
 			.ToListAsync(ct);
+		return new PagedResultDto<ReservaDto>(items, totalCount, pageNumber, pageSize);
+	}
 }
 
 public class ObterReservaPorIdQueryHandler(AppDbContext db)

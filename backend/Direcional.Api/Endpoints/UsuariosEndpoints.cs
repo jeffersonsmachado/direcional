@@ -7,6 +7,24 @@ public static class UsuariosEndpoints
 {
 	public static void MapUsuariosEndpoints(this WebApplication app)
 	{
+
+		app.MapGet("/usuarios", async (IMediator mediator, int? pageNumber, int? pageSize) =>
+		{
+			var query = new ObterUsuariosQuery(pageNumber ?? 1, pageSize ?? 10);
+
+			var result = await mediator.Send(query);
+
+			return Results.Ok(result);
+
+
+		}).RequireAuthorization(policy => policy.RequireRole("Admin"));
+
+		app.MapGet("/usuarios/{id:guid}", async (Guid id, IMediator mediator) =>
+		{
+			var usuario = await mediator.Send(new ObterUsuarioPorIdQuery(id));
+			return usuario is null ? Results.NotFound() : Results.Ok(usuario);
+		}).RequireAuthorization();
+
 		app.MapPost("/usuarios/auth/login", async (LoginCommand cmd, IMediator mediator) =>
 		{
 			try
@@ -19,16 +37,6 @@ public static class UsuariosEndpoints
 				return Results.BadRequest(new { message = ex.Message });
 			}
 		}).AllowAnonymous();
-
-		app.MapGet("/usuarios", async (IMediator mediator) =>
-			Results.Ok(await mediator.Send(new ObterUsuariosQuery())))
-			.RequireAuthorization(policy => policy.RequireRole("Admin"));
-
-		app.MapGet("/usuarios/{id:guid}", async (Guid id, IMediator mediator) =>
-		{
-			var usuario = await mediator.Send(new ObterUsuarioPorIdQuery(id));
-			return usuario is null ? Results.NotFound() : Results.Ok(usuario);
-		}).RequireAuthorization();
 
 		app.MapPost("/usuarios", async (CriarUsuarioCommand cmd, IMediator mediator) =>
 		{

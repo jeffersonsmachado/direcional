@@ -9,9 +9,15 @@ public static class VendasEndpoints
 	{
 		var group = app.MapGroup("/vendas").RequireAuthorization();
 
-		group.MapGet("/", async (IMediator mediator) =>
-			Results.Ok(await mediator.Send(new ObterVendasQuery())))
-			.RequireAuthorization(policy => policy.RequireRole("Admin", "Corretor"));
+		group.MapGet("/", async (IMediator mediator, int? pageNumber, int? pageSize) =>
+		{
+			var query = new ObterVendasQuery(pageNumber ?? 1, pageSize ?? 10);
+
+			var result = await mediator.Send(query);
+
+			return Results.Ok(result);
+
+		}).RequireAuthorization(policy => policy.RequireRole("Admin", "Corretor"));
 
 		group.MapPost("/", async (CriarVendaCommand cmd, IMediator mediator) =>
 		{

@@ -7,9 +7,16 @@ public static class ApartamentosEndpoints
 {
 	public static void MapApartamentosEndpoints(this WebApplication app)
 	{
-		app.MapGet("/apartamentos", async (IMediator mediator) =>
-			Results.Ok(await mediator.Send(new ObterApartamentosQuery())))
-			.RequireAuthorization();
+		var group = app.MapGroup("/apartamentos").RequireAuthorization();
+
+		group.MapGet("/", async (IMediator mediator, int? pageNumber, int? pageSize) =>
+		{
+			var query = new ObterApartamentosQuery(pageNumber ?? 1, pageSize ?? 10);
+
+			var result = await mediator.Send(query);
+
+			return Results.Ok(result);
+		});
 
 		app.MapGet("/apartamentos/{id:guid}", async (Guid id, IMediator mediator) =>
 		{
