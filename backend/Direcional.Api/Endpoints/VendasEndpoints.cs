@@ -13,7 +13,7 @@ public static class VendasEndpoints
 			Results.Ok(await mediator.Send(new ObterVendasQuery())))
 			.RequireAuthorization(policy => policy.RequireRole("Admin", "Corretor"));
 
-		group.MapPost("/vendas", async (CriarVendaCommand cmd, IMediator mediator) =>
+		group.MapPost("/", async (CriarVendaCommand cmd, IMediator mediator) =>
 		{
 			try
 			{

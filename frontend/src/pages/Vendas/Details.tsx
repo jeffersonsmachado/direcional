@@ -59,7 +59,6 @@ export default function VendaDetalhes() {
 			});
 	}, [id]);
 
-	// Handler direto para disparar a Mutation (CancelarVendaCommand)
 	const handleCancelarVenda = async () => {
 		if (
 			!window.confirm(
@@ -75,7 +74,6 @@ export default function VendaDetalhes() {
 		try {
 			await api.patch(`/vendas/${id}/cancelar`);
 
-			// Atualiza o estado raiz de forma direta e atômica. Sem cascatas de efeitos.
 			if (venda) {
 				setVenda({
 					...venda,
@@ -91,6 +89,40 @@ export default function VendaDetalhes() {
 				);
 			} else {
 				setErro("Erro ao processar o distrato no servidor.");
+			}
+		} finally {
+			setProcessando(false);
+		}
+	};
+
+	const handleConcluirVenda = async () => {
+		if (
+			!window.confirm("ATENÇÃO: Tem certeza que deseja CONCLUIR esta venda?")
+		) {
+			return;
+		}
+
+		setErro("");
+		setProcessando(true);
+
+		try {
+			await api.patch(`/vendas/${id}/concluir`);
+
+			if (venda) {
+				setVenda({
+					...venda,
+					status: typeof venda.status === "number" ? 1 : "Concluida",
+				});
+			}
+			alert("Apartamento vendido com sucesso!");
+		} catch (err: unknown) {
+			if (isAxiosError<{ message?: string }>(err)) {
+				setErro(
+					err.response?.data?.message ??
+						"Erro ao processar a conclusão da venda no servidor.",
+				);
+			} else {
+				setErro("Erro ao processar a conclusão da venda no servidor.");
 			}
 		} finally {
 			setProcessando(false);
@@ -117,7 +149,6 @@ export default function VendaDetalhes() {
 			</p>
 		);
 
-	// 🚀 ESTADO DERIVADO (Calculado puramente em tempo de renderização, sem setState!)
 	const obterConfigStatus = (status: string | number) => {
 		if (status === 0 || status === "EmAndamento")
 			return {
@@ -125,6 +156,7 @@ export default function VendaDetalhes() {
 				col: "#a16207",
 				bg: "#fef9c3",
 				podeCancelar: true,
+				podeConcluir: true,
 			};
 		if (status === 1 || status === "Concluida" || status === "Concluído")
 			return {
@@ -132,13 +164,15 @@ export default function VendaDetalhes() {
 				col: "#15803d",
 				bg: "#dcfce7",
 				podeCancelar: true,
-			}; // Ajuste se seu negócio permitir distrato de concluída
+				podeConcluir: false,
+			};
 		if (status === 2 || status === "Cancelada" || status === "Cancelado")
 			return {
 				label: "Cancelada",
 				col: "#b91c1c",
 				bg: "#fee2e2",
 				podeCancelar: false,
+				podeConcluir: false,
 			};
 		return {
 			label: String(status),
@@ -293,6 +327,25 @@ export default function VendaDetalhes() {
 						{statusConfig.label}
 					</span>
 				</div>
+
+				{statusConfig.podeConcluir && (
+					<button
+						onClick={handleConcluirVenda}
+						disabled={processando}
+						style={{
+							padding: "10px 20px",
+							background: "#22c55e",
+							color: "white",
+							border: "none",
+							borderRadius: "4px",
+							cursor: processando ? "not-allowed" : "pointer",
+							fontWeight: "bold",
+							opacity: processando ? 0.7 : 1,
+						}}
+					>
+						{processando ? "Processando Venda..." : "Concluir Venda"}
+					</button>
+				)}
 
 				{statusConfig.podeCancelar && (
 					<button

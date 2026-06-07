@@ -16,7 +16,6 @@ import VendaDetalhes from "./pages/Vendas/Details";
 import UsuariosList from "./pages/Usuarios/List";
 import UsuariosCreate from "./pages/Usuarios/Create";
 
-// Função simples para verificar se o usuário está logado
 const PrivateRoute = ({ children }: { children: React.JSX.Element }) => {
 	const isAuthenticated = !!localStorage.getItem("direcional_token");
 	return isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -54,7 +53,6 @@ export default function App() {
 					<Route path="usuarios/novo" element={<UsuariosCreate />} />
 				</Route>
 
-				{/* Fallback para rotas não encontradas */}
 				<Route path="*" element={<Navigate to="/login" replace />} />
 			</Routes>
 		</BrowserRouter>

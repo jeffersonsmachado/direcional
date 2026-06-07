@@ -91,57 +91,57 @@ export default function ReservaDetalhes() {
 	};
 
 	// Transação 2: Concluir Compra / Efetivar Venda (CriarVendaCommand)
-	const handleConcluirCompra = async () => {
-		if (!reserva) return;
+	// const handleConcluirCompra = async () => {
+	// 	if (!reserva) return;
 
-		// Sugere o valor de tabela do apartamento, permitindo ajuste final caso haja desconto acordado
-		const valorConfirmado = window.prompt(
-			`Confirmar fechamento de contrato para ${reserva.clienteNome}.\n\nDigite o valor final da venda (R$):`,
-			reserva.valorApartamento.toString(),
-		);
+	// 	// Sugere o valor de tabela do apartamento, permitindo ajuste final caso haja desconto acordado
+	// 	const valorConfirmado = window.prompt(
+	// 		`Confirmar fechamento de contrato para ${reserva.clienteNome}.\n\nDigite o valor final da venda (R$):`,
+	// 		reserva.valorApartamento.toString(),
+	// 	);
 
-		if (valorConfirmado === null) return; // Operador cancelou o prompt
+	// 	if (valorConfirmado === null) return; // Operador cancelou o prompt
 
-		const valorNumerico = parseFloat(valorConfirmado);
-		if (isNaN(valorNumerico) || valorNumerico <= 0) {
-			alert("Por favor, informe um valor de venda válido.");
-			return;
-		}
+	// 	const valorNumerico = parseFloat(valorConfirmado);
+	// 	if (isNaN(valorNumerico) || valorNumerico <= 0) {
+	// 		alert("Por favor, informe um valor de venda válido.");
+	// 		return;
+	// 	}
 
-		setErro("");
-		setProcessando(true);
+	// 	setErro("");
+	// 	setProcessando(true);
 
-		try {
-			// Dispara o CriarVendaCommand enviando os dados travados do cliente e imóvel da reserva
-			await api.post("/vendas", {
-				apartamentoId: reserva.apartamento?.id,
-				clienteId: reserva.cliente?.id,
-				valorVenda: valorNumerico,
-				reservaId: reserva.id,
-			});
+	// 	try {
+	// 		// Dispara o CriarVendaCommand enviando os dados travados do cliente e imóvel da reserva
+	// 		await api.post("/vendas", {
+	// 			apartamentoId: reserva.apartamento?.id,
+	// 			clienteId: reserva.cliente?.id,
+	// 			valorVenda: valorNumerico,
+	// 			reservaId: reserva.id,
+	// 		});
 
-			// Altera o status local de forma atômica para refletir a nova situação jurídica
-			setReserva({
-				...reserva,
-				status: typeof reserva.status === "number" ? 1 : "Efetivada",
-			});
+	// 		// Altera o status local de forma atômica para refletir a nova situação jurídica
+	// 		setReserva({
+	// 			...reserva,
+	// 			status: typeof reserva.status === "number" ? 1 : "Efetivada",
+	// 		});
 
-			alert(
-				"Venda concluída com sucesso! O contrato foi gerado e a unidade foi faturada.",
-			);
-			navigate("/vendas"); // Redireciona para exibir o registro na listagem de vendas
-		} catch (err: unknown) {
-			if (isAxiosError<{ message?: string }>(err)) {
-				setErro(
-					err.response?.data?.message ?? "Falha ao processar o cancelamento.",
-				);
-			} else {
-				setErro("Falha ao processar o cancelamento.");
-			}
-		} finally {
-			setProcessando(false);
-		}
-	};
+	// 		alert(
+	// 			"Venda concluída com sucesso! O contrato foi gerado e a unidade foi faturada.",
+	// 		);
+	// 		navigate("/vendas"); // Redireciona para exibir o registro na listagem de vendas
+	// 	} catch (err: unknown) {
+	// 		if (isAxiosError<{ message?: string }>(err)) {
+	// 			setErro(
+	// 				err.response?.data?.message ?? "Falha ao processar o cancelamento.",
+	// 			);
+	// 		} else {
+	// 			setErro("Falha ao processar o cancelamento.");
+	// 		}
+	// 	} finally {
+	// 		setProcessando(false);
+	// 	}
+	// };
 
 	if (loading)
 		return (
@@ -389,7 +389,7 @@ export default function ReservaDetalhes() {
 						>
 							Cancelar Reserva
 						</button>
-						<button
+						{/* <button
 							onClick={handleConcluirCompra}
 							disabled={processando}
 							style={{
@@ -403,6 +403,24 @@ export default function ReservaDetalhes() {
 							}}
 						>
 							{processando ? "Processando..." : "Concluir Compra ✓"}
+						</button> */}
+						<button
+							onClick={() =>
+								navigate(
+									`/vendas/novo?apartamentoId=${reserva.apartamento?.id}&clienteId=${reserva.cliente?.id}`,
+								)
+							}
+							style={{
+								padding: "10px 20px",
+								background: "#22c55e",
+								color: "white",
+								border: "none",
+								borderRadius: "4px",
+								cursor: "pointer",
+								fontWeight: "bold",
+							}}
+						>
+							{processando ? "Processando..." : "Concluir Compra"}
 						</button>
 					</div>
 				)}

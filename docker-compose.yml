@@ -1,15 +1,19 @@
+version: "3.8"
+
 services:
-  sqlserver:
+  sqldata:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: direcional-sqlserver
+    container_name: direcional_db
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "Direcional@2026"
       MSSQL_PID: "Express"
     ports:
       - "1433:1433"
+    networks:
+      - direcional_network
     volumes:
-      - sqlserver_data:/var/opt/mssql
+      - sqlvolume:/var/opt/mssql
     healthcheck:
       test:
         [
@@ -29,19 +33,42 @@ services:
       timeout: 5s
       retries: 10
 
-  api:
+  backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: direcional-api
+    container_name: direcional_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+      - ConnectionStrings__DefaultConnection=Server=sqldata;Database=DirecionalDb;User Id=sa;Password=Direcional@2026;TrustServerCertificate=True;
+      - Jwt__Chave=chave-super-secreta-minimo-32-caracteres!!
+      - Jwt__Emissor=direcional-api
+      - Jwt__Audiencia=direcional-client
     ports:
       - "8080:8080"
-    environment:
-      ASPNETCORE_ENVIRONMENT: "Production"
-      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=Direcional;User Id=sa;Password=Direcional@2026;TrustServerCertificate=True;"
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      - sqldata
+    networks:
+      - direcional_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8080
+    container_name: direcional_web
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - direcional_network
+
+networks:
+  direcional_network:
+    driver: bridge
 
 volumes:
-  sqlserver_data:
+  sqlvolume:

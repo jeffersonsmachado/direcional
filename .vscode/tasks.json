@@ -5,7 +5,7 @@
 		{
 			"label": "docker-compose up",
 			"type": "shell",
-			"command": "docker compose up -d sqlserver",
+			"command": "docker compose up -d sqldata",
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},
