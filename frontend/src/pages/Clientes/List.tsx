@@ -139,7 +139,6 @@ export default function ClientesList() {
 				</p>
 			)}
 
-			{/* Tabela de Dados Hidratada */}
 			<table
 				style={{
 					width: "100%",

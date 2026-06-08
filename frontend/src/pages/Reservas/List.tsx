@@ -11,7 +11,7 @@ type ReservaDto = {
 	apartamentoNumero: string;
 	bloco: string;
 	dataReserva: string;
-	status: string; // Ex: Ativa, Cancelada, Efetivada
+	status: string;
 };
 
 type PagedResponse<T> = {

@@ -12,22 +12,19 @@ type PerfilDto = {
 export default function UsuariosCreate() {
 	const navigate = useNavigate();
 
-	// Estados do Formulário
 	const [nome, setNome] = useState("");
 	const [email, setEmail] = useState("");
 	const [senha, setSenha] = useState("");
 	const [perfilId, setPerfilId] = useState("");
 
-	// Estados de Infraestrutura e Dependências
 	const [perfis, setPerfis] = useState<PerfilDto[]>([]);
 	const [loadingPerfis, setLoadingPerfis] = useState(true);
 	const [salvando, setSalvando] = useState(false);
 	const [erro, setErro] = useState("");
 
-	// Busca os perfis de acesso disponíveis assim que a tela abre
 	useEffect(() => {
 		api
-			.get<PerfilDto[]>("/perfis") // Ajuste se o seu endpoint for /usuarios/perfis
+			.get<PerfilDto[]>("/perfis")
 			.then((res) => setPerfis(res.data))
 			.catch((err) => {
 				console.error(err);
@@ -47,15 +44,13 @@ export default function UsuariosCreate() {
 		setSalvando(true);
 
 		try {
-			// Dispara o CriarUsuarioCommand
 			await api.post("/usuarios", {
 				nome,
 				email,
-				senha, // A senha será criptografada (hash) pelo Backend antes de salvar no DB
+				senha,
 				perfilId,
 			});
 
-			// Volta para a lista ao finalizar
 			navigate("/usuarios");
 		} catch (err: unknown) {
 			if (isAxiosError<{ detail?: string }>(err)) {

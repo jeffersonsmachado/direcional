@@ -53,7 +53,7 @@ export default function ListaClientesSeletor({ onClienteSelecionado }: Props) {
 
 	const selecionarCliente = (id: string) => {
 		setClienteSelecionadoId(id);
-		onClienteSelecionado(id); // Propagamos o ID para o componente pai
+		onClienteSelecionado(id);
 	};
 
 	const carregarPagina = async (novaPagina: number) => {

@@ -20,7 +20,6 @@ export default function ApartamentosCreate() {
 		setErro("");
 		setSalvando(true);
 
-		// Mapeamento e conversão de tipos para satisfazer as propriedades numéricas do C#
 		const payload = {
 			numero,
 			bloco,
@@ -36,10 +35,8 @@ export default function ApartamentosCreate() {
 		}
 
 		try {
-			// Envia o comando de criação para o endpoint do backend .NET
 			await api.post("/apartamentos", payload);
 
-			// Retorna para a listagem principal de apartamentos
 			navigate("/apartamentos");
 		} catch (err: unknown) {
 			if (isAxiosError<{ detail?: string }>(err)) {

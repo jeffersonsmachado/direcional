@@ -8,7 +8,7 @@ type UsuarioDto = {
 	nome: string;
 	email: string;
 	ativo: boolean;
-	perfilNome?: string; // Dependendo do seu DTO, pode vir a string direta ou o objeto aninhado
+	perfilNome?: string;
 	perfil?: string;
 };
 
@@ -177,7 +177,6 @@ export default function UsuariosList() {
 						</tr>
 					) : (
 						usuarios.map((usuario) => {
-							// Resolução segura do nome do perfil, suportando DTO plano ou aninhado do EF Core
 							const perfil = usuario.perfilNome || usuario.perfil || "Padrão";
 
 							return (
@@ -192,20 +191,6 @@ export default function UsuariosList() {
 										{usuario.email}
 									</td>
 									<td style={{ padding: "12px" }}>{perfil}</td>
-									{/* <td style={{ padding: "12px" }}>
-										<span
-											style={{
-												padding: "4px 8px",
-												borderRadius: "12px",
-												fontSize: "12px",
-												fontWeight: "bold",
-												backgroundColor: usuario.ativo ? "#dcfce7" : "#fee2e2",
-												color: usuario.ativo ? "#15803d" : "#b91c1c",
-											}}
-										>
-											{usuario.ativo ? "Ativo" : "Bloqueado"}
-										</span>
-									</td> */}
 								</tr>
 							);
 						})

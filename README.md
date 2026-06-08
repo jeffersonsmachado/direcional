@@ -40,7 +40,7 @@ Exemplo de Resposta (200 OK):
 {
 "items": [
 	{
-	"id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+	"id": "_ID_",
 	"numero": "101",
 	"bloco": "A",
 	"andar": 1,
@@ -139,7 +139,7 @@ Exemplo de Requisição (Body):
 
 ```JSON
 {
-"observacoes": "Cliente enviou a documentação. Aguardando análise de crédito da CEF."
+"observacoes": "NOVA OBSERVAÇÃO A SER INSERIDA"
 }
 ```
 
@@ -201,3 +201,9 @@ Vendas
 ## Token JWT
 
 O token JWT é gerado ao realizar login. Utilize a rota /usuarios/auth/login para logar no sistema.
+
+Após o login, é necessário usar o token que foi gerado no cabeçalho Authorization com o valor "Bearer _TOKEN_".
+
+## Considerações técnicas
+
+O padrão Mediator Pattern foi escolhido utilizando o MediatR por ser mais próximo do padrão da indústria, mantendo o código desacoplado e ser de fácil manutenção.

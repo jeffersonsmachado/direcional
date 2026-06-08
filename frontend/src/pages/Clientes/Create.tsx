@@ -22,7 +22,6 @@ export default function ClientesCreate() {
 		setSalvando(true);
 
 		try {
-			// Envia o comando de criação para o backend em .NET
 			await api.post("/clientes", {
 				nome,
 				cpf,
@@ -30,7 +29,6 @@ export default function ClientesCreate() {
 				telefone,
 			});
 
-			// Retorna para a listagem atualizada após o sucesso
 			navigate("/clientes");
 		} catch (err: unknown) {
 			if (isAxiosError<{ detail?: string }>(err)) {

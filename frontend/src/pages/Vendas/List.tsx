@@ -11,7 +11,7 @@ type VendaDto = {
 	bloco: string;
 	dataVenda: string;
 	valorVenda: number;
-	status: string | number; // Suporta strings ou os inteiros do Enum C#
+	status: string | number;
 };
 
 type PagedResponse<T> = {

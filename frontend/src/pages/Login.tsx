@@ -13,7 +13,6 @@ export default function Login() {
 		e.preventDefault();
 		setErro("");
 		try {
-			// Ajuste a interface de acordo com o que o seu backend retorna
 			const response = await api.post<{
 				token: { token: string; perfil: string };
 			}>("/usuarios/auth/login", {

@@ -28,7 +28,7 @@ export default function App() {
 				{/* Rota Pública */}
 				<Route path="/login" element={<Login />} />
 
-				{/* Rotas Privadas (Enclausuradas pelo Layout) */}
+				{/* Rotas Privadas */}
 				<Route
 					path="/"
 					element={
@@ -37,7 +37,7 @@ export default function App() {
 						</PrivateRoute>
 					}
 				>
-					<Route index element={<Navigate to="/apartamentos" replace />} />
+					<Route index element={<Navigate to="/login" replace />} />
 					<Route path="apartamentos" element={<Apartamentos />} />
 					<Route path="apartamentos/novo" element={<ApartamentosCreate />} />
 					<Route path="apartamentos/:id" element={<ApartamentoDetalhes />} />

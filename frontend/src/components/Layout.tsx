@@ -2,7 +2,6 @@ import { Link, Outlet, useNavigate } from "react-router-dom";
 
 export default function Layout() {
 	const navigate = useNavigate();
-	// Lê o perfil do LocalStorage. Se não achar, assume que é o mais restrito (Comum)
 	const perfilUsuario = localStorage.getItem("direcional_perfil") || "Comum";
 
 	const handleLogout = () => {
@@ -11,7 +10,6 @@ export default function Layout() {
 		navigate("/login");
 	};
 
-	// Lógica de Permissão
 	const isFuncionario =
 		perfilUsuario === "Admin" || perfilUsuario === "Corretor";
 	const isAdmin = perfilUsuario === "Admin";
@@ -38,7 +36,6 @@ export default function Layout() {
 						Apartamentos
 					</Link>
 
-					{/* Apenas Corretores e Admins veem isso */}
 					{isFuncionario && (
 						<>
 							<Link
@@ -62,7 +59,6 @@ export default function Layout() {
 						</>
 					)}
 
-					{/* Apenas Admins veem isso */}
 					{isAdmin && (
 						<Link
 							to="/usuarios"

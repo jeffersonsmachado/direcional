@@ -112,7 +112,6 @@ export default function ReservasCreate() {
 				gap: "20px",
 			}}
 		>
-			{/* 🌟 CABEÇALHO INFORMATIVO: Dados do Apartamento Carregados no Topo */}
 			{apartamento && (
 				<div
 					style={{
@@ -193,23 +192,6 @@ export default function ReservasCreate() {
 						<label style={{ fontWeight: "500", color: "#334155" }}>
 							Cliente Interessado *
 						</label>
-						{/* <select
-							value={clienteId}
-							onChange={(e) => setClienteId(e.target.value)}
-							required
-							style={{
-								padding: "10px",
-								borderRadius: "4px",
-								border: "1px solid #cbd5e1",
-							}}
-						>
-							<option value="">-- Selecione o Cliente Comprador --</option>
-							{clientes.map((c) => (
-								<option key={c.id} value={c.id}>
-									{c.nome} (CPF: {c.cpf})
-								</option>
-							))}
-						</select> */}
 						<ListaClientesSeletor
 							onClienteSelecionado={(e) => setClienteId(e)}
 						/>

@@ -34,7 +34,6 @@ export default function ApartamentoDetalhes() {
 			.finally(() => setLoading(false));
 	}, [id]);
 
-	// Função pura para resolver o Status
 	const resolverStatus = (status: string | number) => {
 		if (status === 0 || status === "Disponivel" || status === "Disponível")
 			return "Disponível";

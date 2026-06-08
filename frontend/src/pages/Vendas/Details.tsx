@@ -33,13 +33,11 @@ export default function VendaDetalhes() {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 
-	// Estados primitivos e isolados de controle de infraestrutura
 	const [venda, setVenda] = useState<VendaDetalheDto | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [processando, setProcessando] = useState(false);
 	const [erro, setErro] = useState("");
 
-	// ÚNICO EFEITO: Executa estritamente uma vez quando o ID da URL muda
 	useEffect(() => {
 		if (!id) return;
 
