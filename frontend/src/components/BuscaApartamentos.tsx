@@ -44,7 +44,7 @@ export default function ListaApartamentosSeletor({
 	useEffect(() => {
 		api
 			.get<PagedResponse<ApartamentoDto>>(
-				`/apartamentos/disponiveis?pageNumber=1&pageSize=1`,
+				`/apartamentos/disponiveis?pageNumber=1&pageSize=5`,
 			)
 			.then((res) => {
 				setApartamentos(res.data.items);
@@ -74,7 +74,7 @@ export default function ListaApartamentosSeletor({
 
 		try {
 			const res = await api.get<PagedResponse<ApartamentoDto>>(
-				`/apartamentos/disponiveis?pageNumber=${novaPagina}&pageSize=1`,
+				`/apartamentos/disponiveis?pageNumber=${novaPagina}&pageSize=5`,
 			);
 
 			setApartamentos(res.data.items);

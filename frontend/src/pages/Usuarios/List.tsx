@@ -35,7 +35,7 @@ export default function UsuariosList() {
 
 	useEffect(() => {
 		api
-			.get<PagedResponse<UsuarioDto>>(`/usuarios?pageNumber=1&pageSize=3`)
+			.get<PagedResponse<UsuarioDto>>(`/usuarios?pageNumber=1&pageSize=10`)
 			.then((res) => {
 				setUsuarios(res.data.items);
 				setInfoPaginacao({
@@ -59,7 +59,7 @@ export default function UsuariosList() {
 
 		try {
 			const res = await api.get<PagedResponse<UsuarioDto>>(
-				`/usuarios?pageNumber=${novaPagina}&pageSize=3`,
+				`/usuarios?pageNumber=${novaPagina}&pageSize=10`,
 			);
 
 			setUsuarios(res.data.items);

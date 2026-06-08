@@ -36,7 +36,7 @@ export default function ClientesList() {
 
 	useEffect(() => {
 		api
-			.get<PagedResponse<ClienteDto>>(`/clientes?pageNumber=1&pageSize=3`)
+			.get<PagedResponse<ClienteDto>>(`/clientes?pageNumber=1&pageSize=10`)
 			.then((res) => {
 				setClientes(res.data.items);
 				setInfoPaginacao({
@@ -60,7 +60,7 @@ export default function ClientesList() {
 
 		try {
 			const res = await api.get<PagedResponse<ClienteDto>>(
-				`/clientes?pageNumber=${novaPagina}&pageSize=3`,
+				`/clientes?pageNumber=${novaPagina}&pageSize=10`,
 			);
 			setClientes(res.data.items);
 			setInfoPaginacao({

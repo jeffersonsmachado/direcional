@@ -37,7 +37,7 @@ export default function VendasList() {
 
 	useEffect(() => {
 		api
-			.get<PagedResponse<VendaDto>>(`/vendas?pageNumber=1&pageSize=30`)
+			.get<PagedResponse<VendaDto>>(`/vendas?pageNumber=1&pageSize=10`)
 			.then((res) => {
 				setVendas(res.data.items);
 				setInfoPaginacao({
@@ -61,7 +61,7 @@ export default function VendasList() {
 
 		try {
 			const res = await api.get<PagedResponse<VendaDto>>(
-				`/vendas?pageNumber=${novaPagina}&pageSize=30`,
+				`/vendas?pageNumber=${novaPagina}&pageSize=10`,
 			);
 
 			setVendas(res.data.items);

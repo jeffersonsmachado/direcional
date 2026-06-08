@@ -33,7 +33,7 @@ export default function ListaClientesSeletor({ onClienteSelecionado }: Props) {
 
 	useEffect(() => {
 		api
-			.get<PagedResponse<ClienteDto>>(`/clientes?pageNumber=1&pageSize=1`)
+			.get<PagedResponse<ClienteDto>>(`/clientes?pageNumber=1&pageSize=5`)
 			.then((res) => {
 				setClientes(res.data.items);
 				setInfoPaginacao({
@@ -62,7 +62,7 @@ export default function ListaClientesSeletor({ onClienteSelecionado }: Props) {
 
 		try {
 			const res = await api.get<PagedResponse<ClienteDto>>(
-				`/clientes?pageNumber=${novaPagina}&pageSize=1`,
+				`/clientes?pageNumber=${novaPagina}&pageSize=5`,
 			);
 
 			setClientes(res.data.items);
