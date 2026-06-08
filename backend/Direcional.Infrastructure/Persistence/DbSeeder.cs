@@ -52,39 +52,5 @@ public static class DbSeeder
 
 		db.Apartamentos.AddRange(apto1, apto2, apto3, apto4, apto5, apto6, apto7);
 		await db.SaveChangesAsync();
-
-		// ── RESERVAS (3 exemplos) ─────────────────────────────────
-		// apto4 e apto5 ficam reservados
-		apto4.MarcarComoReservado();
-		apto5.MarcarComoReservado();
-
-		var reserva1 = Reserva.Criar(apto4.Id, cliente1.Id, 30, "Reserva para avaliação do imóvel");
-		var reserva2 = Reserva.Criar(apto5.Id, cliente2.Id, 15, "Cliente retorna em 15 dias");
-		var reserva3 = Reserva.Criar(apto3.Id, cliente3.Id, 30, "Aguardando aprovação de financiamento");
-
-		// reserva3: apto3 também reservado
-		apto3.MarcarComoReservado();
-
-		db.Reservas.AddRange(reserva1, reserva2, reserva3);
-		await db.SaveChangesAsync();
-
-		// ── VENDAS (3 exemplos) ───────────────────────────────────
-		// apto1 e apto2 são vendidos diretamente (sem reserva prévia)
-		// apto3 é vendido convertendo a reserva3
-		apto1.MarcarComoVendido();
-		apto2.MarcarComoVendido();
-		apto3.MarcarComoVendido();
-		reserva3.Converter();
-
-		var venda1 = Venda.Criar(apto1.Id, cliente1.Id, 350_000m);
-		var venda2 = Venda.Criar(apto2.Id, cliente2.Id, 475_000m);
-		var venda3 = Venda.Criar(apto3.Id, cliente3.Id, 715_000m, reserva3.Id);
-
-		venda1.Concluir();
-		venda2.Concluir();
-		// venda3 fica EmAndamento
-
-		db.Vendas.AddRange(venda1, venda2, venda3);
-		await db.SaveChangesAsync();
 	}
 }
